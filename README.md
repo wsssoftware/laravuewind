@@ -52,7 +52,7 @@ On package.json file, add the following line to scripts config:
 On `tailwind.config.js` file, add the following line to content config:
 
 ```js
-import laravuewind from 'laravuewind'
+import laravuewind from 'laravuewind/resources/js'
 
 export default {
     content: [

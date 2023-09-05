@@ -2,7 +2,7 @@ import plugin from "tailwindcss/plugin";
 import colors from "tailwindcss/colors";
 
 const laravuewind = plugin(
-    function ({ addUtilities, addComponents, e, config}) {
+    function ({}) {
     },
     {
         theme: {
