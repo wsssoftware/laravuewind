@@ -25,5 +25,6 @@
   },
   "homepage": "https://github.com/wsssoftware/laravuewind#readme",
   "dependencies": {
+    "tailwindcss": "^3.2.1"
   }
 }
