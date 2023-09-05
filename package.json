@@ -1,0 +1,29 @@
+{
+  "name": "laravuewind",
+  "version": "0.1.0-alpha.1",
+  "description": "A Laravel VueJs Toolkit built with TailwindCSS",
+  "main": "resources/js/index.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wsssoftware/laravuewind.git"
+  },
+  "keywords": [
+    "VueJs",
+    "Laravel",
+    "TailwindCSS"
+  ],
+  "author": "Allan Carvalho",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wsssoftware/laravuewind/issues"
+  },
+  "homepage": "https://github.com/wsssoftware/laravuewind#readme",
+  "dependencies": {
+  }
+}
