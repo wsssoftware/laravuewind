@@ -12,7 +12,9 @@
 import InputLabel from "./InputLabel.vue";
 import InputHelp from "./InputHelp.vue";
 
-export default {
+import {defineComponent} from "vue";
+
+export default defineComponent({
   name: "InputGroup",
   components: {
     InputHelp,
@@ -21,7 +23,7 @@ export default {
   props: {
 
   },
-}
+})
 </script>
 
 <style scoped>
