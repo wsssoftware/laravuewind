@@ -1,12 +1,34 @@
 <template>
-  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+  <label :for="id" :class="[hasError ? 'text-red-600' : 'text-gray-900', 'block text-sm font-medium leading-6']">
+    <slot/>
+    <span class="text-red-600" v-if="required">&nbsp;*</span>
+    <span
+        v-tooltip="`dadas`" class="bg-primary-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+    >?</span>
+  </label>
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue";
+import {defineComponent, PropType} from "vue";
+import Tooltip from "../../Directives/Tooltip";
+import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 
 export default defineComponent({
-  name: "InputLabel"
+  name: "InputLabel",
+  props: {
+    id: String,
+    field: {type: String, required: true},
+    form: {type: Object as PropType<InertiaForm<object>>, required: true},
+    required: Boolean,
+  },
+  directives: {
+    Tooltip,
+  },
+  computed: {
+    hasError(): boolean {
+      return !!this.form.errors[this.field];
+    }
+  }
 });
 </script>
 

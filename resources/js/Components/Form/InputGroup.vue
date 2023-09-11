@@ -1,28 +1,56 @@
 <template>
-  <div>
-    <InputLabel/>
+  <div v-bind="parentAttrs">
+    <slot v-if="labelSlotExists" :id="finalId" :field="field" :form="form" :label="label" :required="required" name="label"/>
+    <InputLabel v-else-if="!!label" :id="finalId" :field="field" :form="form" :required="required">{{ label }}</InputLabel>
     <div class="mt-2">
-      <input type="email" name="email" id="email" class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="you@example.com" aria-describedby="email-description" />
+      <slot v-if="inputSlotExists" :id="finalId" :field="field" :form="form" :type="type" name="input"/>
+      <FillableInput v-bind="$attrs" v-else v-model="form[field]" :id="finalId" :field="field" :form="form" :type="type"/>
     </div>
     <InputHelp/>
   </div>
 </template>
 
 <script lang="ts">
+import FillableInput from "./FillableInput.vue";
 import InputLabel from "./InputLabel.vue";
 import InputHelp from "./InputHelp.vue";
-
+import type { PropType } from 'vue'
 import {defineComponent} from "vue";
+import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 
 export default defineComponent({
+  inheritAttrs: false,
   name: "InputGroup",
   components: {
+    FillableInput,
     InputHelp,
     InputLabel
   },
   props: {
-
+    id: String,
+    field: {type: String, required: true},
+    form: {type: Object as PropType<InertiaForm<object>>, required: true},
+    label: String,
+    parentAttrs: Object,
+    required: Boolean,
+    type: String,
   },
+  computed: {
+    finalId(): string {
+      return this.id || 'input-' + Math.random().toString(16).slice(2);
+    },
+    inputSlotExists(): boolean {
+      return !!this.$slots.label;
+    },
+    labelSlotExists(): boolean {
+      return !!this.$slots.input;
+    },
+  },
+  beforeMount() {
+    if (this.form[this.field] === undefined) {
+      throw new Error(`The form field "${this.field}" is missing from the component's form.`);
+    }
+  }
 })
 </script>
 

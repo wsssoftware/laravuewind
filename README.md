@@ -57,7 +57,7 @@ import laravuewind from './laravuewind/tailwind.ts';
 export default {
     content: [
         //...
-        './node_modules/laravuewind/resources/js/**/*.vue',
+        './node_modules/laravuewind/resources/js/**/*.{vue,js,ts}',
     ],
     plugins: [
         //...
