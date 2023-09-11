@@ -3,7 +3,7 @@
     <slot/>
     <span class="text-red-600" v-if="required">&nbsp;*</span>
     <span
-        v-tooltip="`dadas`" class="bg-primary-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+        v-tooltip:left="`meu <b>tooltip</b>`" class="bg-primary-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
     >?</span>
   </label>
 </template>

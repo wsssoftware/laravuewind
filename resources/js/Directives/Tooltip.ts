@@ -1,87 +1,115 @@
-
-import {createApp, defineComponent, h} from "vue";
+import {App, createApp, DefineComponent, defineComponent, DirectiveBinding} from "vue";
 import Tooltip from '../Components/Tooltip.vue';
 
-const id = 'tooltip-' + Math.random().toString(16).slice(2);
+export type Placement =
+    | 'auto'
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end';
 
-function createTooltipDiv(): void {
-    const div = document.createElement('div');
-    div.id = id;
-    div.style.width = '100%';
-    div.style.height = '100%';
-    div.style.position = 'fixed';
-    div.style.top = '0';
-    div.style.left = '0';
-    document.body.appendChild(div);
-}
-function destroyTooltipDiv(): void {
-    const div = document.getElementById(id);
-    if (div) {
-        document.body.removeChild(div);
+export type TooltipOptions = {
+    arrow: boolean,
+    flip: boolean,
+    html: boolean,
+    placement: Placement | string,
+    shift: boolean,
+    title: string,
+};
+
+
+const factory = new class {
+    private readonly id: string;
+
+    private floating: HTMLElement;
+
+    private floatingApp: App<Element>
+
+    private readonly component: DefineComponent;
+
+    constructor() {
+        this.id = 'tooltip-' + Math.random().toString(16).slice(2);
+        this.component = defineComponent({
+            extends: Tooltip,
+        });
+    }
+
+    public createFloatingApp(el: HTMLElement, binding: DirectiveBinding): void {
+
+        this.floatingApp = createApp(this.component, {
+            floating: this.floating,
+            options: this.parseOptions(binding),
+            reference: el,
+            title: 'abc',
+        });
+
+        this.floatingApp.mount(this.floating);
+    }
+
+    public createFloatingDiv(): void {
+        this.floating = document.createElement('div');
+        this.floating.id = this.id;
+        this.floating.style.position = 'absolute';
+        this.floating.style.width = 'max-content';
+        this.floating.style.top = '0';
+        this.floating.style.left = '0';
+        document.body.appendChild(this.floating);
+    }
+
+    public destroyFloatingDiv(): void {
+        if (this.floatingApp && this.floatingApp._container) {
+            this.floatingApp.unmount();
+        }
+        if (this.floating) {
+            document.body.removeChild(this.floating);
+        }
+    }
+
+    protected parseOptions(binding: DirectiveBinding): TooltipOptions {
+        let title = binding.value;
+        if (typeof title !== 'string' || title.trim() === '') {
+            throw new Error('Tooltip directive value must have a title property and cannot be empty');
+        }
+        return {
+            arrow: !(binding.modifiers.withoutArrow ?? false),
+            flip: !(binding.modifiers.withoutFlip ?? false),
+            html: binding.modifiers.html ?? false,
+            placement: binding.arg || 'auto',
+            shift: !(binding.modifiers.withoutShift ?? false),
+            title: title.trim(),
+        };
+    }
+
+    public reloadFloatingApp(el: HTMLElement, binding: DirectiveBinding): void {
+        if (this.floatingApp && this.floatingApp._container) {
+            this.floatingApp.unmount();
+        }
+        this.createFloatingApp(el, binding)
     }
 }
 
+
 const tooltip = {
-    // called before bound element's attributes
-    // or event listeners are applied
-    created(el, binding, vnode, prevVnode) {
-        // see below for details on arguments
+    mounted(el: HTMLElement, binding: DirectiveBinding) {
+        factory.createFloatingApp(el, binding);
     },
-    // called right before the element is inserted into the DOM.
-    mounted(el: HTMLElement, binding, vnode, prevVnode) {
-        // el.addEventListener('mouseenter', function(e) {
-        //     console.log('hover')
-        // });
-        // el.addEventListener('mouseout', function(e) {
-        //     console.log('end hover')
-        // });
-
-        let tooltip = defineComponent({
-            extends: Tooltip,
-        });
-
-        let div = document.getElementById(id);
-
-        const abc = createApp(tooltip).mount(div)
-
-        abc.init(el, abc.$el);
-
-        // console.log(abc.$el);
-
-        // let node = document.createElement('span');
-        // node.innerHTML = 'dsadas';
-        // node.id = 'tooltip';
-        // node.style.position = 'absolute';
-        // node.style.width = 'max-content';
-        // binding.instance.$root.$el.appendChild(node);
-
-        // autoUpdate(el, node, () => {
-        //     computePosition(el, node, {
-        //         placement: 'top',
-        //     }).then(({x, y}) => {
-        //         node.style.top = `${y}px`;
-        //         node.style.left = `${x}px`;
-        //     })
-        // })
-
-
+    beforeMount(): void {
+        factory.createFloatingDiv();
     },
-    // called when the bound element's parent component
-    // and all its children are mounted.
-    beforeMount(el: HTMLElement, binding, vnode, prevVnode) {
-        createTooltipDiv();
+    updated(el: HTMLElement, binding: DirectiveBinding): void {
+        factory.reloadFloatingApp(el, binding)
     },
-    // called before the parent component is updated
-    beforeUpdate(el, binding, vnode, prevVnode) {},
-    // called after the parent component and
-    // all of its children have updated
-    updated(el, binding, vnode, prevVnode) {},
-    // called before the parent component is unmounted
-    beforeUnmount(el: HTMLElement, binding, vnode, prevVnode) {
-        destroyTooltipDiv();
+    beforeUnmount(): void {
+        factory.destroyFloatingDiv();
     },
-    // called when the parent component is unmounted
-    unmounted(el, binding, vnode, prevVnode) {}
 }
 
 export default tooltip;
