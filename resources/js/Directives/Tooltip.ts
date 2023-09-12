@@ -73,7 +73,7 @@ const instances: Factory[] = [];
 class Factory {
     private readonly id: string;
 
-    private reference: HTMLElement;
+    private readonly reference: HTMLElement;
 
     private floating: HTMLElement;
 
@@ -142,6 +142,13 @@ class Factory {
             title: title.trim(),
         };
     }
+
+    public reloadFloatingApp(el: HTMLElement, binding: DirectiveBinding): void {
+        if (this.floatingApp && this.floatingApp._container) {
+            this.floatingApp.unmount();
+        }
+        this.createFloatingApp(el, binding)
+    }
 }
 function getFactory(el: HTMLElement): Factory
 {
@@ -155,12 +162,13 @@ function getFactory(el: HTMLElement): Factory
 }
 
 const tooltip = {
-    mounted(el: HTMLElement) {
+    mounted(el: HTMLElement, binding: DirectiveBinding) {
         let factory = getFactory(el);
         factory.createFloatingDiv(el);
+        factory.createFloatingApp(el, binding);
     },
     updated(el: HTMLElement, binding: DirectiveBinding): void {
-        getFactory(el).createFloatingApp(el, binding);
+        getFactory(el).reloadFloatingApp(el, binding)
     },
     beforeUnmount(el: HTMLElement): void {
         getFactory(el).destroyFloating();

@@ -1,7 +1,7 @@
 <template>
   <div v-bind="parentAttrs">
-    <slot v-if="labelSlotExists" :id="finalId" :field="field" :form="form" :label="label" :required="required" name="label"/>
-    <InputLabel v-else-if="!!label" :id="finalId" :field="field" :form="form" :required="required">{{ label }}</InputLabel>
+    <slot v-if="labelSlotExists" :id="finalId" :field="field" :form="form" :help="help" :label="label" :required="required" name="label"/>
+    <InputLabel v-else-if="!!label" :id="finalId" :field="field" :form="form" :help="help" :required="required">{{ label }}</InputLabel>
     <div class="mt-2">
       <slot v-if="inputSlotExists" :id="finalId" :field="field" :form="form" :type="type" name="input"/>
       <FillableInput v-bind="$attrs" v-else v-model="form[field]" :id="finalId" :field="field" :form="form" :type="type"/>
@@ -30,6 +30,7 @@ export default defineComponent({
     id: String,
     field: {type: String, required: true},
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
+    help: String,
     label: String,
     parentAttrs: Object,
     required: Boolean,

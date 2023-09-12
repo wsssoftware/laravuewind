@@ -90,7 +90,7 @@ export default defineComponent({
     this.reference.removeEventListener('mouseout', this.hideTooltip);
   },
   methods: {
-    init() {
+    init() : void {
       autoUpdate(this.reference, this.floating, () => {
         computePosition(this.reference, this.floating, this.finalOptions)
             .then(({x, y, middlewareData, placement}) => {
@@ -103,10 +103,10 @@ export default defineComponent({
             })
       })
     },
-    showTooltip() {
+    showTooltip() : void {
       this.show = true;
     },
-    hideTooltip() {
+    hideTooltip() : void {
       this.show = false;
     }
   }
