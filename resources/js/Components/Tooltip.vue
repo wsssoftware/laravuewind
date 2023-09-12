@@ -1,16 +1,41 @@
 <template>
-  <div :class="[show ? 'opacity-100' : 'opacity-0', 'bg-primary-700 z-50 transition-opacity ease-in-out duration-200']">
-    <template v-if="!options.html">
+  <div :class="[
+      show ? 'opacity-100' : 'opacity-0',
+      options.theme === 'primary' ? 'bg-primary-800/90' : '',
+      options.theme === 'slate' ? 'bg-slate-800/90' : '',
+      options.theme === 'red' ? 'bg-red-800/90' : '',
+      options.theme === 'yellow' ? 'bg-yellow-800/90' : '',
+      options.theme === 'green' ? 'bg-green-800/90' : '',
+      options.theme === 'blue' ? 'bg-blue-800/90' : '',
+      options.theme === 'indigo' ? 'bg-indigo-800/90' : '',
+      options.theme === 'pink' ? 'bg-pink-800/90' : '',
+      'text-center text-white z-50 rounded transition-opacity ease-in-out duration-400'
+      ]">
+    <div class="px-2 py-1" v-if="!options.html">
       {{ options.title }}
-    </template>
-    <div v-else v-html="options.title"/>
+    </div>
+    <div class="px-2 py-1" v-else v-html="options.title"/>
+    <div v-if="options.arrow" ref="arrow" class="absolute w-[10px] h-[10px]">
+      <svg height="10" width="10">
+        <polygon points="0,5 10,5 5,10" :class="[
+          options.theme === 'primary' ? 'fill-primary-800/80' : '',
+          options.theme === 'slate' ? 'fill-slate-800/80' : '',
+          options.theme === 'red' ? 'fill-red-800/80' : '',
+          options.theme === 'yellow' ? 'fill-yellow-800/80' : '',
+          options.theme === 'green' ? 'fill-green-800/80' : '',
+          options.theme === 'blue' ? 'fill-blue-800/80' : '',
+          options.theme === 'indigo' ? 'fill-indigo-800/80' : '',
+          options.theme === 'pink' ? 'fill-pink-800/80' : '',
+        ]" />
+      </svg>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import {arrow, autoPlacement, autoUpdate, computePosition, flip, offset, shift} from '@floating-ui/dom';
 import {defineComponent, PropType} from "vue";
-import {TooltipOptions} from "../Directives/Tooltip";
+import {TooltipOptions, calculateArrowPosition} from "../Directives/Tooltip";
 
 export default defineComponent({
   name: "Tooltip",
@@ -22,8 +47,6 @@ export default defineComponent({
   data() {
     return {
       show: false,
-      arrowLeft: 0,
-      arrowTop: 0,
     }
   },
   computed: {
@@ -34,7 +57,7 @@ export default defineComponent({
       } = {
       };
       options.middleware = [
-        offset(10)
+        offset(7)
       ];
       if (this.options.placement === 'auto') {
         options.middleware.push(autoPlacement())
@@ -47,31 +70,43 @@ export default defineComponent({
       if (this.options.shift) {
         options.middleware.push(shift())
       }
+      if (this.options.arrow) {
+        options.middleware.push(arrow({
+          element: this.$refs.arrow,
+        }));
+      }
       return options;
     }
   },
-  mounted() {
-    autoUpdate(this.reference, this.floating, () => {
-      computePosition(this.reference, this.floating, this.finalOptions)
-          .then(({x, y, middlewareData}) => {
-            this.floating.style.top = `${y}px`;
-            this.floating.style.left = `${x}px`;
-          })
-    })
-    this.reference.addEventListener('mouseenter', this.showTooltip);
+  beforeMount() {
+    this.reference.addEventListener('mouseover', this.showTooltip);
     this.reference.addEventListener('mouseout', this.hideTooltip);
   },
-  beforeUnmount() {
+  mounted(): void {
+    this.init();
+  },
+  beforeUnmount(): void {
     this.reference.removeEventListener('mouseenter', this.showTooltip);
     this.reference.removeEventListener('mouseout', this.hideTooltip);
   },
   methods: {
+    init() {
+      autoUpdate(this.reference, this.floating, () => {
+        computePosition(this.reference, this.floating, this.finalOptions)
+            .then(({x, y, middlewareData, placement}) => {
+              if (middlewareData.arrow && this.$refs.arrow) {
+                const {x, y} = middlewareData.arrow;
+                calculateArrowPosition(x, y, placement, this.$refs.arrow)
+              }
+              this.floating.style.top = `${y}px`;
+              this.floating.style.left = `${x}px`;
+            })
+      })
+    },
     showTooltip() {
-      console.log('hover')
       this.show = true;
     },
     hideTooltip() {
-      console.log('end hover')
       this.show = false;
     }
   }

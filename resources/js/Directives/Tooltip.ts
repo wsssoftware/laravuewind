@@ -1,5 +1,16 @@
-import {App, createApp, DefineComponent, defineComponent, DirectiveBinding} from "vue";
+import {App, createApp, defineComponent, DirectiveBinding} from "vue";
 import Tooltip from '../Components/Tooltip.vue';
+
+export type Themes =
+    | 'primary'
+    | 'slate'
+    | 'red'
+    | 'yellow'
+    | 'green'
+    | 'blue'
+    | 'indigo'
+    | 'pink'
+    |  string;
 
 export type Placement =
     | 'auto'
@@ -22,29 +33,60 @@ export type TooltipOptions = {
     html: boolean,
     placement: Placement | string,
     shift: boolean,
+    theme: Themes,
     title: string,
 };
 
+export function calculateArrowPosition(x: number|null, y: number|null, placement: Placement, arrow: HTMLElement) {
+    arrow.style.left = '';
+    arrow.style.top = '';
+    arrow.style.bottom = '';
+    arrow.style.right = '';
+    arrow.style.transform = 'rotate(0deg)';
+    if (placement.includes('bottom')) {
+        arrow.style.left = x ? `${x}px` : '';
+        arrow.style.top = `${-arrow.offsetWidth / 2}px`;
+        arrow.style.transform = 'rotate(180deg)';
+    }
+    if (placement.includes('top')) {
+        arrow.style.left = x ? `${x}px` : '';
+        arrow.style.bottom = `${-arrow.offsetWidth / 2}px`;
+    }
+    if (placement.includes('left')) {
+        arrow.style.top = y ? `${y}px` : '';
+        arrow.style.right = `${-arrow.offsetWidth / 2}px`;
+        arrow.style.transform = 'rotate(270deg)';
+    }
+    if (placement.includes('right')) {
+        arrow.style.top = y ? `${y}px` : '';
+        arrow.style.left = `${-arrow.offsetWidth / 2}px`;
+        arrow.style.transform = 'rotate(90deg)';
+    }
+}
 
-const factory = new class {
+const component = defineComponent({
+    extends: Tooltip,
+});
+
+const instances: Factory[] = [];
+
+class Factory {
     private readonly id: string;
+
+    private reference: HTMLElement;
 
     private floating: HTMLElement;
 
     private floatingApp: App<Element>
 
-    private readonly component: DefineComponent;
-
-    constructor() {
+    constructor(reference: HTMLElement) {
+        this.reference = reference;
         this.id = 'tooltip-' + Math.random().toString(16).slice(2);
-        this.component = defineComponent({
-            extends: Tooltip,
-        });
     }
 
     public createFloatingApp(el: HTMLElement, binding: DirectiveBinding): void {
 
-        this.floatingApp = createApp(this.component, {
+        this.floatingApp = createApp(component, {
             floating: this.floating,
             options: this.parseOptions(binding),
             reference: el,
@@ -54,23 +96,26 @@ const factory = new class {
         this.floatingApp.mount(this.floating);
     }
 
-    public createFloatingDiv(): void {
+    public createFloatingDiv(el: HTMLElement): void {
+        let parent = el.parentElement;
         this.floating = document.createElement('div');
         this.floating.id = this.id;
         this.floating.style.position = 'absolute';
         this.floating.style.width = 'max-content';
         this.floating.style.top = '0';
         this.floating.style.left = '0';
-        document.body.appendChild(this.floating);
+        parent.insertBefore(this.floating, el.nextSibling);
     }
 
-    public destroyFloatingDiv(): void {
+    public destroyFloating(): void {
         if (this.floatingApp && this.floatingApp._container) {
-            this.floatingApp.unmount();
+           this.floatingApp.unmount();
         }
-        if (this.floating) {
-            document.body.removeChild(this.floating);
-        }
+        instances.splice(instances.indexOf(this), 1);
+    }
+
+    public isThisReference(el: HTMLElement): boolean {
+        return this.reference === el;
     }
 
     protected parseOptions(binding: DirectiveBinding): TooltipOptions {
@@ -78,38 +123,48 @@ const factory = new class {
         if (typeof title !== 'string' || title.trim() === '') {
             throw new Error('Tooltip directive value must have a title property and cannot be empty');
         }
+        let theme = 'slate';
+        theme = binding.modifiers.primary ? 'primary' : theme;
+        theme = binding.modifiers.slate ? 'slate' : theme;
+        theme = binding.modifiers.red ? 'red' : theme;
+        theme = binding.modifiers.yellow ? 'yellow' : theme;
+        theme = binding.modifiers.green ? 'green' : theme;
+        theme = binding.modifiers.blue ? 'blue' : theme;
+        theme = binding.modifiers.indigo ? 'indigo' : theme;
+        theme = binding.modifiers.pink ? 'pink' : theme;
         return {
             arrow: !(binding.modifiers.withoutArrow ?? false),
             flip: !(binding.modifiers.withoutFlip ?? false),
             html: binding.modifiers.html ?? false,
             placement: binding.arg || 'auto',
             shift: !(binding.modifiers.withoutShift ?? false),
+            theme: theme,
             title: title.trim(),
         };
     }
-
-    public reloadFloatingApp(el: HTMLElement, binding: DirectiveBinding): void {
-        if (this.floatingApp && this.floatingApp._container) {
-            this.floatingApp.unmount();
-        }
-        this.createFloatingApp(el, binding)
+}
+function getFactory(el: HTMLElement): Factory
+{
+    let filtered = instances.filter((instance) => instance.isThisReference(el));
+    if (filtered.length === 0) {
+        let factory = new Factory(el);
+        instances.push(factory);
+        return factory;
     }
+    return filtered[0];
 }
 
-
 const tooltip = {
-    mounted(el: HTMLElement, binding: DirectiveBinding) {
-        factory.createFloatingApp(el, binding);
-    },
-    beforeMount(): void {
-        factory.createFloatingDiv();
+    mounted(el: HTMLElement) {
+        let factory = getFactory(el);
+        factory.createFloatingDiv(el);
     },
     updated(el: HTMLElement, binding: DirectiveBinding): void {
-        factory.reloadFloatingApp(el, binding)
+        getFactory(el).createFloatingApp(el, binding);
     },
-    beforeUnmount(): void {
-        factory.destroyFloatingDiv();
-    },
+    beforeUnmount(el: HTMLElement): void {
+        getFactory(el).destroyFloating();
+    }
 }
 
 export default tooltip;
