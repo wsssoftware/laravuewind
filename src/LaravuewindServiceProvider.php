@@ -2,9 +2,9 @@
 
 namespace Laravuewind;
 
+use Laravuewind\Commands\LaravuewindCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Laravuewind\Commands\LaravuewindCommand;
 
 class LaravuewindServiceProvider extends PackageServiceProvider
 {
