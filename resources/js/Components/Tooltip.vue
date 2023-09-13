@@ -9,7 +9,7 @@
       options.theme === 'blue' ? 'bg-blue-800/90' : '',
       options.theme === 'indigo' ? 'bg-indigo-800/90' : '',
       options.theme === 'pink' ? 'bg-pink-800/90' : '',
-      'text-center text-white z-50 rounded transition-opacity ease-in-out duration-400'
+      'z-50 text-center text-white rounded shadow-sm transition-opacity ease-in-out duration-400'
       ]">
     <div class="px-2 py-1" v-if="!options.html">
       {{ options.title }}
@@ -18,14 +18,14 @@
     <div v-if="options.arrow" ref="arrow" class="absolute w-[10px] h-[10px]">
       <svg height="10" width="10">
         <polygon points="0,5 10,5 5,10" :class="[
-          options.theme === 'primary' ? 'fill-primary-800/80' : '',
-          options.theme === 'slate' ? 'fill-slate-800/80' : '',
-          options.theme === 'red' ? 'fill-red-800/80' : '',
-          options.theme === 'yellow' ? 'fill-yellow-800/80' : '',
-          options.theme === 'green' ? 'fill-green-800/80' : '',
-          options.theme === 'blue' ? 'fill-blue-800/80' : '',
-          options.theme === 'indigo' ? 'fill-indigo-800/80' : '',
-          options.theme === 'pink' ? 'fill-pink-800/80' : '',
+          options.theme === 'primary' ? 'fill-primary-800/90' : '',
+          options.theme === 'slate' ? 'fill-slate-800/90' : '',
+          options.theme === 'red' ? 'fill-red-800/90' : '',
+          options.theme === 'yellow' ? 'fill-yellow-800/90' : '',
+          options.theme === 'green' ? 'fill-green-800/90' : '',
+          options.theme === 'blue' ? 'fill-blue-800/90' : '',
+          options.theme === 'indigo' ? 'fill-indigo-800/90' : '',
+          options.theme === 'pink' ? 'fill-pink-800/90' : '',
         ]" />
       </svg>
     </div>
@@ -45,20 +45,11 @@ export default defineComponent({
     reference: Object as PropType<HTMLElement>,
   },
   data() {
-    return {
-      show: false,
-    }
+    return {show: false}
   },
   computed: {
     finalOptions(): Object {
-      let options : {
-        placement: undefined|string,
-        middleware: any[],
-      } = {
-      };
-      options.middleware = [
-        offset(7)
-      ];
+      let options : { placement: undefined|string, middleware: any[], } = {placement: undefined, middleware: [offset(7)]};
       if (this.options.placement === 'auto') {
         options.middleware.push(autoPlacement())
       } else {
@@ -71,9 +62,7 @@ export default defineComponent({
         options.middleware.push(shift())
       }
       if (this.options.arrow) {
-        options.middleware.push(arrow({
-          element: this.$refs.arrow,
-        }));
+        options.middleware.push(arrow({element: this.$refs.arrow}));
       }
       return options;
     }
@@ -103,16 +92,8 @@ export default defineComponent({
             })
       })
     },
-    showTooltip() : void {
-      this.show = true;
-    },
-    hideTooltip() : void {
-      this.show = false;
-    }
+    showTooltip() : void {this.show = true},
+    hideTooltip() : void {this.show = false}
   }
 })
 </script>
-
-<style scoped>
-
-</style>

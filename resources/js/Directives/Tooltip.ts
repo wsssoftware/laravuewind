@@ -64,9 +64,7 @@ export function calculateArrowPosition(x: number|null, y: number|null, placement
     }
 }
 
-const component = defineComponent({
-    extends: Tooltip,
-});
+const component = defineComponent({extends: Tooltip});
 
 const instances: Factory[] = [];
 
