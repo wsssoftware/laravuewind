@@ -10,7 +10,7 @@ class LaravuewindServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        
+
         /*
          * This class is a Package Service Provider
          *
