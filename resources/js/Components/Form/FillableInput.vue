@@ -2,7 +2,6 @@
   <input
       :type="type"
       :id="id"
-      maxlength="100"
       v-model="form[field]"
       placeholder="Placeholder"
       :class="['lvw-input', hasError ? 'lvw-red' : `lvw-${theme}`]" />

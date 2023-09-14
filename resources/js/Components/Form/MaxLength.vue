@@ -1,5 +1,7 @@
 <template>
-  <div v-if="maxlength !== null && length !== null && showMaxLength" :class="['lvw-input-maxlength', `lvw-${theme}`]">
+  <div
+      v-if="maxlength !== null && length !== null && showMaxLength"
+      :class="['lvw-input-maxlength', `lvw-${currentTheme}`]">
     {{ `${fLength}/${fMaxlength}` }}
   </div>
 </template>
@@ -35,23 +37,23 @@ export default defineComponent({
       if (this.maxlength === null) {
         return null;
       }
-      let constant = (1 -  (this.maxlength > 1000 ? 100 : this.maxlength / 10) / 100) / 2;
-      let limit = Math.floor(this.maxlength * constant);
-      let halfMaxlength = this.maxlength / 2;
-      if (limit > halfMaxlength) {
-        limit = Math.floor(this.maxlength / 2);
-      }
-      if (this.maxlength > 250) {
-        limit = 30;
-      }
-      return limit;
+      let min = 10;
+      let max = 200;
+      let limit = (this.maxlength / 1000 * 100)
+      limit = limit < 10 ? min : (limit > 100 ? max : limit);
+      limit = limit > this.maxlength / 4 ? this.maxlength / 4 : limit;
+      return Math.floor(limit);
     },
-    // attentionLimit(): number|null {
-    //   return this.length >= this.maxlength;
-    // },
-    // warnLimit(): number|null {
-    //   return this.length >= this.maxlength;
-    // },
+    currentTheme() {
+      let remaining = this.maxlength - this.length;
+      if (remaining <= this.limit) {
+        return 'red'
+      }
+      if (remaining <= 2 * this.limit) {
+        return 'yellow'
+      }
+      return this.theme;
+    }
   },
   mounted() {
     this.init();
