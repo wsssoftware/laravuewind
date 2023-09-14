@@ -59,7 +59,6 @@ export default defineComponent({
     this.init();
     this.getLength(this.form[this.field]);
     this.$watch('form.' + this.field, this.getLength);
-    console.log(this.limit);
   },
   methods: {
     getLength(word): null | number {

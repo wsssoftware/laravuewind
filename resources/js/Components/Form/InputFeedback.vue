@@ -30,7 +30,7 @@ export default defineComponent({
       return errors !== false && (errors === undefined || errors.trim() === '') ? false : errors;
     },
     finalMessage(): false|string {
-      let feedback : string|undefined|false = this.feedback;
+      let feedback : string|undefined|false = this.errors || this.feedback;
       return feedback === undefined || feedback.trim() === '' ? false : feedback;
     },
     hasFeedback(): boolean {

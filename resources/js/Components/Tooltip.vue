@@ -1,5 +1,5 @@
 <template>
-  <div :class="[
+  <div v-show="show" :class="[
       show ? 'opacity-100' : 'opacity-0',
       options.theme === 'primary' ? 'bg-primary-800/90' : '',
       options.theme === 'slate' ? 'bg-slate-800/90' : '',
