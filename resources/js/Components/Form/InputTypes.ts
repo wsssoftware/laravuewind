@@ -1,6 +1,14 @@
 
+export type SelectChoice = {key: any, value: any};
 
-export const fillable: string[] = [
+export type SelectOptions = {
+    clearable?: boolean,
+    choices: SelectChoice[],
+    multiple?: boolean,
+    searchable?: boolean,
+};
+
+export const Fillable: string[] = [
     'color',
     'date',
     'datetime',
@@ -21,7 +29,7 @@ export const fillable: string[] = [
 ];
 
 const types: string[] = [
-    ...fillable,
+    ...Fillable,
     'select',
 ]
 

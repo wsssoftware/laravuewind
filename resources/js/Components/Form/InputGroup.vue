@@ -3,27 +3,37 @@
     <slot v-if="labelSlotExists" :id="finalId" :field="field" :form="form" :help="help" :label="label" :required="required" :theme="theme" name="label"/>
     <InputLabel v-else-if="!!label" :id="finalId" :field="field" :form="form" :help="help" :required="required" :theme="theme">{{ label }}</InputLabel>
     <div class="mt-1">
-      <template v-if="isFillable">
-        <slot
-            v-if="inputSlotExists"
-            :id="finalId"
-            :field="field"
-            :form="form"
-            :maskito="maskito"
-            :theme="theme"
-            :type="type"
-            name="input"/>
-        <FillableInput
-            v-else
-            v-bind="$attrs"
-            v-model="form[field]"
-            :id="finalId"
-            :field="field"
-            :form="form"
-            :maskito="maskito"
-            :theme="theme"
-            :type="type"/>
-      </template>
+      <slot
+          v-if="inputSlotExists"
+          :id="finalId"
+          :field="field"
+          :form="form"
+          :maskito="maskito"
+          :theme="theme"
+          :type="type"
+          name="input"/>
+      <FillableInput
+          v-else-if="isFillable && typeof  type === 'string'"
+          v-bind="$attrs"
+          v-model="form[field]"
+          :id="finalId"
+          :field="field"
+          :form="form"
+          :maskito="maskito"
+          :theme="theme"
+          :type="type"/>
+      <SelectableInput
+          v-else-if="isSelectable"
+          v-bind="$attrs"
+          v-model="form[field]"
+          :clearable="type.clearable ?? false"
+          :choices="type.choices"
+          :id="finalId"
+          :field="field"
+          :form="form"
+          :multiple="type.multiple ?? false"
+          :searchable="type.searchable ?? false"
+          :theme="theme"/>
     </div>
     <slot v-if="feedbackSlotExists" :id="finalId" :field="field" :form="form" :showMaxLength="showMaxLength" :theme="theme" name="feedback"/>
     <InputFeedback v-else :id="finalId" :feedback="feedback" :field="field" :form="form" :show-max-length="showMaxLength" :theme="theme"/>
@@ -37,13 +47,17 @@ import InputFeedback from "./InputFeedback.vue";
 import type { PropType } from 'vue'
 import {defineComponent} from "vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
-import InputTypes, {fillable} from "./InputTypes";
+import InputTypes, {Fillable, SelectOptions} from "./InputTypes";
 import {MaskitoOptions} from "@maskito/core";
+import SelectableInput from "./SelectableInput.vue";
+
+type sa = string;
 
 export default defineComponent({
   inheritAttrs: false,
   name: "InputGroup",
   components: {
+    SelectableInput,
     FillableInput,
     InputFeedback,
     InputLabel
@@ -70,10 +84,10 @@ export default defineComponent({
       }
     },
     type: {
-      type: String,
+      type: [String, Object] as PropType<string|SelectOptions>,
       default: 'text',
-      validator(value: string): boolean {
-        return InputTypes.includes(value);
+      validator(value: string|SelectOptions): boolean {
+        return InputTypes.includes(value) || (typeof value === 'object' && Array.isArray(value.choices));
       }
     },
   },
@@ -88,7 +102,10 @@ export default defineComponent({
       return !!this.$slots.label;
     },
     isFillable(): boolean {
-      return fillable.includes(this.type);
+      return Fillable.includes(this.type);
+    },
+    isSelectable(): boolean {
+      return typeof this.type === 'object' && Array.isArray(this.type.choices)
     },
     labelSlotExists(): boolean {
       return !!this.$slots.input;

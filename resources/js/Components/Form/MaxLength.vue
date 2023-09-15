@@ -56,9 +56,9 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.init();
-    this.getLength(this.form[this.field]);
-    this.$watch('form.' + this.field, this.getLength);
+    if (this.init()) {
+      this.$watch('form.' + this.field, this.getLength);
+    }
   },
   methods: {
     getLength(word): null | number {
@@ -68,9 +68,14 @@ export default defineComponent({
       let maxlength: string | null = this?.el.getAttribute('maxlength');
       return typeof maxlength === 'string' && /^\d+$/.test(maxlength) ? parseInt(maxlength) : null;
     },
-    init(): void {
+    init(): boolean {
       this.el = document.getElementById(this.id);
+      if (this.el === null) {
+        return false;
+      }
       this.maxlength = this.getMaxlength();
+      this.getLength(this.form[this.field]);
+      return true;
     }
   },
 });
