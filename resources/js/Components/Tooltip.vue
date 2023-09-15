@@ -1,5 +1,6 @@
 <template>
-  <div v-show="show" :class="[
+  <div :class="[
+      hidden ? 'hidden' : '',
       show ? 'opacity-100' : 'opacity-0',
       options.theme === 'primary' ? 'bg-primary-800/90' : '',
       options.theme === 'slate' ? 'bg-slate-800/90' : '',
@@ -45,7 +46,7 @@ export default defineComponent({
     reference: Object as PropType<HTMLElement>,
   },
   data() {
-    return {show: false}
+    return {show: false, hidden: true, hiddenTimeout:null}
   },
   computed: {
     finalOptions(): Object {
@@ -68,6 +69,7 @@ export default defineComponent({
     }
   },
   beforeMount() {
+    this.reference.addEventListener('click', this.mouseClick);
     this.reference.addEventListener('mouseover', this.showTooltip);
     this.reference.addEventListener('mouseout', this.hideTooltip);
   },
@@ -75,6 +77,7 @@ export default defineComponent({
     this.init();
   },
   beforeUnmount(): void {
+    this.reference.removeEventListener('click', this.mouseClick);
     this.reference.removeEventListener('mouseenter', this.showTooltip);
     this.reference.removeEventListener('mouseout', this.hideTooltip);
   },
@@ -92,8 +95,20 @@ export default defineComponent({
             })
       })
     },
-    showTooltip() : void {this.show = true},
-    hideTooltip() : void {this.show = false}
+    mouseClick(): void {
+      this.show ? this.hideTooltip() : this.showTooltip();
+    },
+    showTooltip() : void {
+      clearTimeout(this.hiddenTimeout);
+      this.hidden = false;
+      this.show = true;
+    },
+    hideTooltip() : void {
+      this.show = false;
+      this.hiddenTimeout = setTimeout(() => {
+        this.hidden = true;
+      }, 500);
+    }
   }
 })
 </script>
