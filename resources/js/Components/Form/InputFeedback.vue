@@ -69,7 +69,7 @@ export default defineComponent({
       @apply text-slate-900/80
     }
     &.lvw-red {
-      @apply text-red-700/80
+      @apply text-red-700/90
     }
   }
 }

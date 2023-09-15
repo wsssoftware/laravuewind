@@ -1,30 +1,37 @@
 <template>
+  <textarea
+      v-if="type === 'textarea'"
+      :id="id"
+      v-model="form[field]"
+      v-maskito="maskito"
+      :class="['lvw-input', hasError ? 'lvw-red' : `lvw-${theme}`]"/>
   <input
+      v-else
       :type="type"
       :id="id"
       v-model="form[field]"
-      placeholder="Placeholder"
-      :class="['lvw-input', hasError ? 'lvw-red' : `lvw-${theme}`]" />
+      v-maskito="maskito"
+      :class="['lvw-input', hasError ? 'lvw-red' : `lvw-${theme}`]"/>
 </template>
 
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
-import FillableTypes from "./FillableTypes";
+import {MaskitoOptions} from "@maskito/core";
+import Maskito from "../../Directives/Maskito";
+
 export default defineComponent({
   name: "FillableInput",
   props: {
     id: String,
     field: {type: String, required: true},
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
+    maskito: Object as PropType<MaskitoOptions>,
     theme: String,
-    type: {
-      type: String,
-      default: 'text',
-      validator(value: string): boolean {
-        return FillableTypes.includes(value);
-      }
-    }
+    type: String,
+  },
+  directives: {
+    Maskito,
   },
   computed: {
     hasError(): boolean {
@@ -40,20 +47,25 @@ export default defineComponent({
   &.lvw-gray {
     @apply text-gray-800 ring-gray-500 placeholder:text-gray-800/60 focus:ring-gray-600
   }
+
   &.lvw-green {
     @apply text-green-900 ring-green-500 placeholder:text-green-800/60 focus:ring-green-600
   }
+
   &.lvw-indigo {
     @apply text-indigo-900 ring-indigo-500 placeholder:text-indigo-800/60 focus:ring-indigo-600
   }
+
   &.lvw-primary {
     @apply text-primary-900 ring-primary-500 placeholder:text-primary-800/60 focus:ring-primary-600
   }
+
   &.lvw-slate {
     @apply text-slate-900 ring-slate-500 placeholder:text-slate-800/60 focus:ring-slate-600
   }
+
   &.lvw-red {
-    @apply text-red-700 ring-red-500 placeholder:text-red-700/60 focus:ring-red-600
+    @apply text-red-700 ring-red-700 placeholder:text-red-700/60 focus:ring-red-700
   }
 }
 </style>

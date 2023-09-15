@@ -1,10 +1,16 @@
-# This is my package laravuewind
+# Laravuewind
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/wsssoftware/laravuewind.svg?style=flat-square)](https://packagist.org/packages/wsssoftware/laravuewind)
 [![npm](https://img.shields.io/npm/v/laravuewind)](https://www.npmjs.com/package/laravuewind)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/wsssoftware/laravuewind/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/wsssoftware/laravuewind/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/wsssoftware/laravuewind/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/wsssoftware/laravuewind/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/wsssoftware/laravuewind.svg?style=flat-square)](https://packagist.org/packages/wsssoftware/laravuewind)
+
+Laravuewind is a package that provides a set of tools to integrate and
+improve the development of applications using
+[Laravel](https://laravel.com/) with
+[Vue](https://vuejs.org/) and
+[Tailwind](https://tailwindcss.com/).
 
 ## Backend Installation
 
@@ -70,18 +76,14 @@ export default {
 > If you use plugins that add `primary` and `secondary` colors as a non default pattern (100, 200, 300) like daisyui,
 > you must call this plugin first.  
 
-## Usage
 
-```php
-$laravuewind = new Laravuewind();
-echo $laravuewind->echoPhrase('Hello, Wsssoftware!');
-```
+### Form components
 
-## Testing
+#### InputGroup
 
-```bash
-composer test
-```
+InputGroup is a component that allows you to group an input field with a label and/or feedback fields.
+To know more about it, please check it's [implementation](https://github.com/wsssoftware/laravuewind/blob/main/resources/js/Components/Form/InputGroup.vue)
+and [Maskito](https://maskito.dev/getting-started/what-is-maskito) if you want to use masks.
 
 ## Changelog
 

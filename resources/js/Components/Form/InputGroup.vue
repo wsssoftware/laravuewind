@@ -3,8 +3,27 @@
     <slot v-if="labelSlotExists" :id="finalId" :field="field" :form="form" :help="help" :label="label" :required="required" :theme="theme" name="label"/>
     <InputLabel v-else-if="!!label" :id="finalId" :field="field" :form="form" :help="help" :required="required" :theme="theme">{{ label }}</InputLabel>
     <div class="mt-1">
-      <slot v-if="inputSlotExists" :id="finalId" :field="field" :form="form" :theme="theme" :type="type" name="input"/>
-      <FillableInput v-bind="$attrs" v-else v-model="form[field]" :id="finalId" :field="field" :form="form" :theme="theme" :type="type"/>
+      <template v-if="isFillable">
+        <slot
+            v-if="inputSlotExists"
+            :id="finalId"
+            :field="field"
+            :form="form"
+            :maskito="maskito"
+            :theme="theme"
+            :type="type"
+            name="input"/>
+        <FillableInput
+            v-else
+            v-bind="$attrs"
+            v-model="form[field]"
+            :id="finalId"
+            :field="field"
+            :form="form"
+            :maskito="maskito"
+            :theme="theme"
+            :type="type"/>
+      </template>
     </div>
     <slot v-if="feedbackSlotExists" :id="finalId" :field="field" :form="form" :showMaxLength="showMaxLength" :theme="theme" name="feedback"/>
     <InputFeedback v-else :id="finalId" :feedback="feedback" :field="field" :form="form" :show-max-length="showMaxLength" :theme="theme"/>
@@ -18,6 +37,8 @@ import InputFeedback from "./InputFeedback.vue";
 import type { PropType } from 'vue'
 import {defineComponent} from "vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
+import InputTypes, {fillable} from "./InputTypes";
+import {MaskitoOptions} from "@maskito/core";
 
 export default defineComponent({
   inheritAttrs: false,
@@ -34,6 +55,7 @@ export default defineComponent({
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
     help: String,
     label: String,
+    maskito: Object as PropType<MaskitoOptions>,
     parentAttrs: Object,
     required: Boolean,
     showMaxLength: {
@@ -47,7 +69,13 @@ export default defineComponent({
         return ['gray', 'green', 'indigo', 'primary', 'slate'].includes(value);
       }
     },
-    type: String,
+    type: {
+      type: String,
+      default: 'text',
+      validator(value: string): boolean {
+        return InputTypes.includes(value);
+      }
+    },
   },
   computed: {
     finalId(): string {
@@ -58,6 +86,9 @@ export default defineComponent({
     },
     inputSlotExists(): boolean {
       return !!this.$slots.label;
+    },
+    isFillable(): boolean {
+      return fillable.includes(this.type);
     },
     labelSlotExists(): boolean {
       return !!this.$slots.input;
