@@ -5,6 +5,7 @@
             :choices="choices"
             :field="field"
             :form="form"
+            :multiple="multiple"
             :open="open"
             :placeholder="placeholder"
             :theme="theme"/>

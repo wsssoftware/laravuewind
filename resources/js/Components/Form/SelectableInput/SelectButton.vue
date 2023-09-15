@@ -3,12 +3,14 @@
       'lvw-input', {'lvw-open': open},
       hasError ? 'lvw-red' : `lvw-${theme}`
       ]">
-    <span v-if="placeholder && choice === undefined" class="lvw-placeholder">{{ placeholder }}</span>
-    <span v-else class="truncate">{{ choice }}</span>
-    <div class="flex justify-center items-center gap-x-2">
-      <button v-if="clearable && choice !== undefined" type="button" @click.prevent="clear">
-        <XmarkLarge class="lvw-xmark-icon" aria-hidden="true"/>
-      </button>
+    <Selected
+        @remove="remove"
+        :class="{'lvw-placeholder': placeholder && choice === undefined}"
+        :choice="placeholder && choice === undefined ? {key:null, value: placeholder} : choice"
+        :multiple="multiple"
+        :theme="theme"/>
+    <div class="flex justify-center items-center gap-x-1">
+      <ClearButton :show="clearable && choice !== undefined" @click.prevent="clear"/>
       <AnglesUpDown class="lvw-angles-icon" aria-hidden="true"/>
     </div>
   </ListboxButton>
@@ -20,34 +22,51 @@ import {ListboxButton} from '@headlessui/vue'
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 import AnglesUpDown from "../../Icons/AnglesUpDown.vue";
 import {SelectChoice} from "../InputTypes";
-import XmarkLarge from "../../Icons/XmarkLarge.vue";
+import ClearButton from "./ClearButton.vue";
+import Selected from "./Selected.vue";
 
 export default defineComponent({
   name: "SelectButton",
   components: {
-    XmarkLarge,
+    Selected,
+    ClearButton,
     AnglesUpDown,
     ListboxButton,
   },
   props: {
-    clearable: Boolean,
+    clearable: {type: Boolean, required: true},
     choices: {type: Object as PropType<SelectChoice[]>, required: true},
     field: {type: String, required: true},
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
-    open: Boolean,
+    multiple: {type: Boolean, required: true},
+    open: {type: Boolean, required: true},
     placeholder: String,
-    theme: String,
+    theme: {type: String, required: true},
   },
   computed: {
-    choice(): any {
-      return this.choices.find((choice: SelectChoice) => choice.key === this.form[this.field])?.value;
+    choice(): undefined|SelectChoice|SelectChoice[] {
+      if (this.multiple) {
+        let result = this.choices.filter((choice: SelectChoice) => this.form[this.field].includes(choice.key));
+        return result.length > 0 ? result : undefined;
+      }
+      return this.choices.find((choice: SelectChoice) => choice.key === this.form[this.field]);
     },
     hasError(): boolean {
       return !!this.form.errors[this.field];
     }
   },
   methods: {
-    clear() {
+    remove(choice: SelectChoice): void {
+      if (Array.isArray(this.form[this.field])) {
+        this.form[this.field] = this.form[this.field].filter((key: number) => key !== choice.key);
+        return;
+      }
+    },
+    clear(): void {
+      if (this.multiple) {
+        this.form[this.field] = [];
+        return;
+      }
       this.form[this.field] = '';
     }
   }
@@ -56,13 +75,10 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .lvw-input {
-  @apply form-input block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset sm:text-sm sm:leading-6;
-  @apply min-h-[2.572em] flex justify-between items-center gap-x-1  items-center cursor-default;
+  @apply form-input block w-full rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset sm:text-sm sm:leading-6;
+  @apply min-h-[2.572em] flex justify-between items-center gap-x-1 cursor-default;
   &.lvw-open {
     @apply ring-2;
-  }
-  .lvw-xmark-icon {
-    @apply h-5 w-5 p-1 fill-red-500 transition-all duration-200 hover:fill-red-700 hover:p-[0.20rem];
   }
 
   .lvw-angles-icon {

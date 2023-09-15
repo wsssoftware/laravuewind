@@ -161,14 +161,23 @@ function getFactory(el: HTMLElement): Factory
 
 const tooltip = {
     mounted(el: HTMLElement, binding: DirectiveBinding) {
+        if (binding.value === false) {
+            return;
+        }
         let factory = getFactory(el);
         factory.createFloatingDiv(el);
         factory.createFloatingApp(el, binding);
     },
     updated(el: HTMLElement, binding: DirectiveBinding): void {
+        if (binding.value === false) {
+            return;
+        }
         getFactory(el).reloadFloatingApp(el, binding)
     },
-    beforeUnmount(el: HTMLElement): void {
+    beforeUnmount(el: HTMLElement, binding: DirectiveBinding): void {
+        if (binding.value === false) {
+            return;
+        }
         getFactory(el).destroyFloating();
     }
 }
