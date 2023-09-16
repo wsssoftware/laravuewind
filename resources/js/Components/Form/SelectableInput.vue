@@ -10,7 +10,13 @@
             :placeholder="placeholder"
             :theme="theme"/>
 
-      <Options :choices="choices" :component="component" :theme="theme"/>
+      <Options
+          :choices="choices"
+          :component="component"
+          :open="open"
+          :searchable="searchable"
+          :searchPlaceholder="searchPlaceholder"
+          :theme="theme"/>
     </Listbox>
 </template>
 
@@ -39,6 +45,7 @@ export default defineComponent({
     multiple: {type: Boolean, required: true},
     placeholder: String,
     searchable: {type: Boolean, required: true},
+    searchPlaceholder: String,
     theme: {type: String, required: true},
   }
 });

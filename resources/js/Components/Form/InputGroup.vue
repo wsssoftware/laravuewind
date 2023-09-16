@@ -34,6 +34,7 @@
           :form="form"
           :multiple="type.multiple ?? false"
           :searchable="type.searchable ?? false"
+          :searchPlaceholder="type.searchPlaceholder"
           :theme="theme"/>
     </div>
     <slot v-if="feedbackSlotExists" :id="finalId" :field="field" :form="form" :showMaxLength="showMaxLength" :theme="theme" name="feedback"/>

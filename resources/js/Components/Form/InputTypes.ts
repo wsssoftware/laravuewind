@@ -8,6 +8,7 @@ export type SelectOptions = {
     multiple?: boolean,
     optionComponent?: Component,
     searchable?: boolean,
+    searchPlaceholder?: string,
 };
 
 export const Fillable: string[] = [

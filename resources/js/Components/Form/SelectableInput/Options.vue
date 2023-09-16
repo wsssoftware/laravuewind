@@ -4,9 +4,14 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0">
     <ListboxOptions class="lvw-select-options">
+      <SearchInput
+          v-if="searchable"
+          v-model="search"
+          :searchPlaceholder="searchPlaceholder"
+          :theme="theme"/>
       <ListboxOption
           v-slot="{ active, selected }"
-          v-for="choice in choices"
+          v-for="choice in filtered"
           :key="choice.key"
           :value="choice.key"
           as="template">
@@ -23,10 +28,12 @@ import {PropType} from "vue/dist/vue";
 import {SelectChoice} from "../InputTypes";
 import {ListboxOptions, ListboxOption} from '@headlessui/vue'
 import Option from "./Option.vue";
+import SearchInput from "./SearchInput.vue";
 
 export default defineComponent({
   name: "Options",
   components: {
+    SearchInput,
     Option,
     ListboxOption,
     ListboxOptions,
@@ -34,8 +41,51 @@ export default defineComponent({
   props: {
     choices: {type: Object as PropType<SelectChoice[]>, required: true},
     component: Object as PropType<Component>,
+    open: {type: Boolean, required: true},
+    searchable: {type: Boolean, required: true},
+    searchPlaceholder: String,
     theme: {type: String, required: true},
-  }
+  },
+  data() {
+    return {
+      search: null,
+      filtered: null,
+    }
+  },
+  beforeMount() {
+    this.resetSearch();
+  },
+  beforeUpdate() {
+    this.resetSearch();
+  },
+  methods: {
+    resetSearch() {
+      if (this.open) {
+        this.search = ''
+        this.filtered = this.choices
+      }
+    },
+    stringChoice(value: string | number | boolean): string {
+      return typeof value === 'string'
+          ? value
+          : typeof value === 'number'
+              ? value.toString()
+              : typeof value === 'boolean'
+                  ? value ? 'true' : 'false'
+                  : ''
+    }
+  },
+  watch: {
+    search(value: string) {
+      this.filtered = value === ''
+          ? this.choices
+          : this.choices.filter((choice: SelectChoice) => this.stringChoice(choice.value)
+              .toLowerCase()
+              .replace(/\s+/g, '')
+              .includes(value.toLowerCase().replace(/\s+/g, ''))
+          )
+    }
+  },
 })
 </script>
 
