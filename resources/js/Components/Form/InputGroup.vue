@@ -28,6 +28,7 @@
           v-model="form[field]"
           :clearable="type.clearable ?? false"
           :choices="type.choices"
+          :component="type.optionComponent"
           :id="finalId"
           :field="field"
           :form="form"

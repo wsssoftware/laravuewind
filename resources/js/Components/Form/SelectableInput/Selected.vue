@@ -1,5 +1,5 @@
 <template>
-  <MultipleItem
+  <MultipleSelected
       v-if="multiple && Array.isArray(choice)"
       @remove="$emit('remove', $event)"
       :choices="choice"
@@ -10,11 +10,11 @@
 <script lang="ts">
 import {defineComponent, PropType} from "vue";
 import {SelectChoice} from "../InputTypes";
-import MultipleItem from "./MultipleItem.vue";
+import MultipleSelected from "./MultipleSelected.vue";
 
 export default defineComponent({
   name: "Selected",
-  components: {MultipleItem},
+  components: {MultipleSelected},
   props: {
     choice: {type: Object as PropType<SelectChoice|SelectChoice[]>, required: true},
     multiple: {type: Boolean, required: true},

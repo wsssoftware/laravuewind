@@ -1,10 +1,12 @@
+import {Component} from "vue";
 
-export type SelectChoice = {key: any, value: any};
+export type SelectChoice = {key: any, value: string|number|boolean, extra?: object};
 
 export type SelectOptions = {
     clearable?: boolean,
     choices: SelectChoice[],
     multiple?: boolean,
+    optionComponent?: Component,
     searchable?: boolean,
 };
 

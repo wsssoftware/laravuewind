@@ -1,6 +1,7 @@
 <template>
   <ListboxButton :class="[
-      'lvw-input', {'lvw-open': open},
+      'lvw-input',
+      {'lvw-open': open},
       hasError ? 'lvw-red' : `lvw-${theme}`
       ]">
     <Selected
