@@ -5,7 +5,7 @@
         v-model="value"
         type="search"
         :class="['lvw-input', `lvw-${theme}`]"
-        :placeholder="searchPlaceholder ?? 'What are you looking for?'" />
+        :placeholder="$lvw.translate('form.select.searchPlaceholder', 'abc')" />
   </div>
 </template>
 
@@ -16,7 +16,6 @@ export default defineComponent({
   name: "SearchInput",
   props: {
     modelValue: {type: String, required: true},
-    searchPlaceholder: String,
     theme: {type: String, required: true},
   },
   emits: ['update:modelValue'],
@@ -29,7 +28,7 @@ export default defineComponent({
         this.$emit('update:modelValue', value)
       }
     }
-  }
+  },
 })
 </script>
 

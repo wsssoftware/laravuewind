@@ -7,7 +7,6 @@
       <SearchInput
           v-if="searchable"
           v-model="search"
-          :searchPlaceholder="searchPlaceholder"
           :theme="theme"/>
       <ListboxOption
           v-slot="{ active, selected }"
@@ -43,7 +42,6 @@ export default defineComponent({
     component: Object as PropType<Component>,
     open: {type: Boolean, required: true},
     searchable: {type: Boolean, required: true},
-    searchPlaceholder: String,
     theme: {type: String, required: true},
   },
   data() {
