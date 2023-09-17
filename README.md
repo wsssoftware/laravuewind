@@ -77,6 +77,26 @@ export default {
 > you must call this plugin first.  
 
 
+Insert VueJS plugin
+
+```js
+import Vue from 'vue';
+import Laravuewind from 'laravuewind';
+
+createInertiaApp({
+    //...
+    setup({ el, App, props, plugin }) {
+        return createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(Laravuewind) // <- this one
+            .use(ZiggyVue, Ziggy)
+            .mount(el);
+    },
+   //...
+});
+```
+
+
 ### Form components
 
 #### InputGroup

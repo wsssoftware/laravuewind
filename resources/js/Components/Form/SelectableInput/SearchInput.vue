@@ -2,10 +2,11 @@
   <div>
     <label for="email" class="sr-only">Search</label>
     <input
+        ref="searchInput"
         v-model="value"
         type="search"
         :class="['lvw-input', `lvw-${theme}`]"
-        :placeholder="$lvw.translate('form.select.searchPlaceholder', 'abc')" />
+        :placeholder="$lvw.translate('form.select.searchPlaceholder')" />
   </div>
 </template>
 
@@ -29,6 +30,16 @@ export default defineComponent({
       }
     }
   },
+  mounted() {
+    this.focus();
+  },
+  methods: {
+    focus() {
+      setTimeout(() => {
+        (this.$refs.searchInput as HTMLInputElement).focus();
+      }, 300);
+    }
+  }
 })
 </script>
 
