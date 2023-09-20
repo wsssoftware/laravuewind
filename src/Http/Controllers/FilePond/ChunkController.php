@@ -34,7 +34,7 @@ class ChunkController extends BaseController
                 $folderPath."patch.$offset.tmp",
                 $request->getContent(), ['mimetype' => 'application/octet-stream']);
 
-         $this->persistFileIfDone($request, $serverId, $folderPath);
+        $this->persistFileIfDone($request, $serverId, $folderPath);
 
         return response('', 204);
     }
@@ -80,7 +80,6 @@ class ChunkController extends BaseController
         Storage::disk($disk)->put($finalFilePath, $data, ['mimetype' => 'application/octet-stream']);
         Storage::disk($disk)->deleteDirectory($basePath);
     }
-
 
     public static function initChunk(Request $request): Response
     {

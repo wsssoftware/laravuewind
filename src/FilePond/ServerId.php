@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Crypt;
 
 readonly class ServerId
 {
-
     public string $folderId;
 
     public int $size;
@@ -17,9 +16,9 @@ readonly class ServerId
     /**
      * @throws \Exception
      */
-    private function __construct(?string $folderId = null, ?int $size = null, ?string $encrypted = null)
+    private function __construct(string $folderId = null, int $size = null, string $encrypted = null)
     {
-        if (!empty($folderId) && !empty($size)) {
+        if (! empty($folderId) && ! empty($size)) {
             $this->folderId = $folderId;
             $this->size = $size;
             $data = [
@@ -27,7 +26,7 @@ readonly class ServerId
                 'size' => $this->size,
             ];
             $this->encrypted = Crypt::encryptString(json_encode($data));
-        } elseif (!empty($encrypted)) {
+        } elseif (! empty($encrypted)) {
             $this->encrypted = $encrypted;
             $data = json_decode(Crypt::decryptString($encrypted), true);
             if ($data === null || empty($data['folder']) || empty($data['size'])) {
@@ -70,6 +69,6 @@ readonly class ServerId
      */
     public function getFolderPath(): string
     {
-        return \Laravuewind\Facades\FilePond::getBasePath() . DIRECTORY_SEPARATOR . $this->folderId . DIRECTORY_SEPARATOR;
+        return \Laravuewind\Facades\FilePond::getBasePath().DIRECTORY_SEPARATOR.$this->folderId.DIRECTORY_SEPARATOR;
     }
 }

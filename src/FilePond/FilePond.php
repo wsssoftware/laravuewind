@@ -10,16 +10,12 @@ use Illuminate\Support\Str;
 
 class FilePond
 {
-
     public function createFolderId(): string
     {
         return Str::random('32');
     }
 
     /**
-     * @param  string  $folderId
-     * @param  int  $fileSize
-     * @return \Laravuewind\FilePond\ServerId
      * @throws \Exception
      */
     public function createServerId(string $folderId, int $fileSize): ServerId
@@ -42,9 +38,10 @@ class FilePond
     {
         $defaultDisk = config('filesystems.default');
         $disk = config('laravuewind.filepond.disk') ?? $defaultDisk;
-        if (!isset(config('filesystems.disks')[$disk])) {
+        if (! isset(config('filesystems.disks')[$disk])) {
             throw new Exception("Disk [$disk] not found in filesystems config");
         }
+
         return $disk;
     }
 
