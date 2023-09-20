@@ -26,15 +26,22 @@
           v-else-if="isSelectable"
           v-bind="$attrs"
           v-model="form[field]"
-          :clearable="type.clearable ?? false"
-          :choices="type.choices"
-          :component="type.optionComponent"
+          :clearable="select.clearable ?? false"
+          :choices="select.choices"
+          :component="select.optionComponent"
           :id="finalId"
           :field="field"
           :form="form"
-          :multiple="type.multiple ?? false"
-          :searchable="type.searchable ?? false"
-          :searchPlaceholder="type.searchPlaceholder"
+          :multiple="select.multiple ?? false"
+          :searchable="select.searchable ?? false"
+          :theme="theme"/>
+      <FilePondInput
+          v-else-if="isFilePond"
+          v-bind="$attrs"
+          :id="finalId"
+          :field="field"
+          :form="form"
+          :params="filePond"
           :theme="theme"/>
     </div>
     <slot v-if="feedbackSlotExists" :id="finalId" :field="field" :form="form" :showMaxLength="showMaxLength" :theme="theme" name="feedback"/>
@@ -46,12 +53,13 @@
 import FillableInput from "./FillableInput.vue";
 import InputLabel from "./InputLabel.vue";
 import InputFeedback from "./InputFeedback.vue";
-import type { PropType } from 'vue'
+import type {PropType} from 'vue'
 import {defineComponent} from "vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
-import InputTypes, {Fillable, SelectOptions} from "./InputTypes";
+import InputTypes, {FilePondParams, Fillable, SelectOptions} from "./InputTypes";
 import {MaskitoOptions} from "@maskito/core";
 import SelectableInput from "./SelectableInput.vue";
+import FilePondInput from "./FilePondInput.vue";
 
 type sa = string;
 
@@ -59,6 +67,7 @@ export default defineComponent({
   inheritAttrs: false,
   name: "InputGroup",
   components: {
+    FilePondInput,
     SelectableInput,
     FillableInput,
     InputFeedback,
@@ -68,12 +77,14 @@ export default defineComponent({
     id: String,
     feedback: String,
     field: {type: String, required: true},
+    filePond: Object as PropType<FilePondParams>,
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
     help: String,
     label: String,
     maskito: Object as PropType<MaskitoOptions>,
     parentAttrs: Object,
     required: Boolean,
+    select: Object as PropType<SelectOptions>,
     showMaxLength: {
       type: Boolean,
       default: true,
@@ -86,10 +97,10 @@ export default defineComponent({
       }
     },
     type: {
-      type: [String, Object] as PropType<string|SelectOptions>,
+      type: String,
       default: 'text',
-      validator(value: string|SelectOptions): boolean {
-        return InputTypes.includes(value) || (typeof value === 'object' && Array.isArray(value.choices));
+      validator(value: string): boolean {
+        return InputTypes.includes(value);
       }
     },
   },
@@ -103,11 +114,14 @@ export default defineComponent({
     inputSlotExists(): boolean {
       return !!this.$slots.label;
     },
+    isFilePond(): boolean {
+      return this.type === 'filepond'
+    },
     isFillable(): boolean {
       return Fillable.includes(this.type);
     },
     isSelectable(): boolean {
-      return typeof this.type === 'object' && Array.isArray(this.type.choices)
+      return this.select && Array.isArray(this.select.choices)
     },
     labelSlotExists(): boolean {
       return !!this.$slots.input;

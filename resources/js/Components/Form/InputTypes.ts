@@ -1,4 +1,5 @@
 import {Component} from "vue";
+import {FilePondOptions} from "filepond";
 
 export type SelectChoice = {key: any, value: string|number|boolean, extra?: object};
 
@@ -8,6 +9,11 @@ export type SelectOptions = {
     multiple?: boolean,
     optionComponent?: Component,
     searchable?: boolean,
+};
+
+export type FilePondParams = {
+    options?: FilePondOptions,
+    plugins?: any[],
 };
 
 export const Fillable: string[] = [
@@ -33,6 +39,7 @@ export const Fillable: string[] = [
 const types: string[] = [
     ...Fillable,
     'select',
+    'filepond'
 ]
 
 export default types;
