@@ -10,7 +10,6 @@ class LaravuewindServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-
         /*
          * This class is a Package Service Provider
          *
@@ -19,8 +18,7 @@ class LaravuewindServiceProvider extends PackageServiceProvider
         $package
             ->name('laravuewind')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_laravuewind_table')
+            ->hasRoutes(['filepond'])
             ->hasCommand(LaravuewindCommand::class);
     }
 }

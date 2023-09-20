@@ -44,8 +44,22 @@ export default defineComponent({
     getOptions(): FilePondOptions {
       return {
         ...this?.$lvw?.languageStrings?.filePond ?? {},
+        ...this.getServer(),
         ...this.params?.options ?? {},
       }
+    },
+    getServer(): object {
+      return {
+        server: {
+          url: route('lvw.filepond'),
+          process: '/process',
+          revert: '/process',
+          patch: "?patch=",
+          headers: {
+            'X-CSRF-TOKEN': this.$page.props.csrf_token,
+          }
+        }
+      };
     }
   }
 })

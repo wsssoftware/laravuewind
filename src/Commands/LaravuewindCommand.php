@@ -3,6 +3,7 @@
 namespace Laravuewind\Commands;
 
 use Illuminate\Console\Command;
+use Laravuewind\Facades\FilePond;
 
 class LaravuewindCommand extends Command
 {
@@ -12,7 +13,7 @@ class LaravuewindCommand extends Command
 
     public function handle(): int
     {
-        $this->comment('All done');
+        ray(FilePond::disk());
 
         return self::SUCCESS;
     }
