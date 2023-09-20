@@ -1,5 +1,7 @@
 <template>
-  <input ref="input" type="file">
+  <div>
+    <input ref="input" type="file">
+  </div>
 </template>
 
 <script lang="ts">
@@ -7,6 +9,8 @@ import {defineComponent} from "vue";
 import {PropType} from "vue/dist/vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 import {FilePondParams} from "./InputTypes";
+import * as FilePond from "filepond";
+import {FilePondOptions} from "filepond";
 
 export default defineComponent({
   name: "FilePondInput",
@@ -19,10 +23,31 @@ export default defineComponent({
   },
   emits: [],
   data() {
-    return {}
+    return {
+      filePond: null,
+    }
   },
-  computed: {},
-  methods: {}
+  mounted() {
+    this.filePond = FilePond.create(this.$refs.input, this.getOptions());
+  },
+  updated() {
+    if (this.filePond) {
+      this.filePond.setOptions(this.getOptions());
+    }
+  },
+  beforeUnmount() {
+    if (this.filePond) {
+      this.filePond.destroy();
+    }
+  },
+  methods: {
+    getOptions(): FilePondOptions {
+      return {
+        ...this?.$lvw?.languageStrings?.filePond ?? {},
+        ...this.params?.options ?? {},
+      }
+    }
+  }
 })
 </script>
 
