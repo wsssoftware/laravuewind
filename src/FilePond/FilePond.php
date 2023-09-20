@@ -5,11 +5,27 @@ namespace Laravuewind\FilePond;
 use Exception;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FilePond
 {
+
+    public function createFolderId(): string
+    {
+        return Str::random('32');
+    }
+
+    /**
+     * @param  string  $folderId
+     * @param  int  $fileSize
+     * @return \Laravuewind\FilePond\ServerId
+     * @throws \Exception
+     */
+    public function createServerId(string $folderId, int $fileSize): ServerId
+    {
+        return ServerId::create($folderId, $fileSize);
+    }
 
     /**
      * @throws \Exception
@@ -32,23 +48,16 @@ class FilePond
         return $disk;
     }
 
+    public function getBasePath(): string
+    {
+        return config('laravuewind.filepond.temporary_path', 'filepond');
+    }
+
     /**
      * @throws \Exception
      */
-    public function getPath(string $uploadId): string
+    public function getServerId(string $encrypted): ServerId
     {
-        if (empty($uploadId)) {
-            throw new Exception('Upload ID cannot be empty');
-        }
-        $path = Crypt::decryptString($uploadId);
-        if (!str_starts_with($path, config('laravuewind.filepond.temporary_path', 'filepond'))) {
-            throw new Exception('Invalid upload ID');
-        }
-        return $path;
-    }
-
-    public function getUploadId(string $path): string
-    {
-        return Crypt::encryptString($path);
+        return ServerId::decode($encrypted);
     }
 }

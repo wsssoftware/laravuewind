@@ -5,7 +5,6 @@ namespace Laravuewind\Http\Controllers\FilePond;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Str;
 use Laravuewind\Facades\FilePond;
 
 class UploadController extends BaseController
@@ -14,27 +13,27 @@ class UploadController extends BaseController
     {
         $input = $request->file('filepond');
 
-
         if ($input === null) {
-//            return $this->handleChunkInitialization();
+            return ChunkController::initChunk($request);
         }
 
         $file = is_array($input) ? $input[0] : $input;
-        $path = config('laravuewind.filepond.temporary_path', 'filepond');
 
+        $folderId = FilePond::createFolderId();
         $savedFile = $file->storeAs(
-            $path . DIRECTORY_SEPARATOR . Str::random(),
+            FilePond::getBasePath().DIRECTORY_SEPARATOR.$folderId,
             $file->getClientOriginalName(),
             FilePond::diskName(),
         );
 
-        if (!$savedFile) {
-            return response('Could not save file', 500, [
+        abort_if(! $savedFile, 500, 'Could not save file');
+
+        return response(
+            FilePond::createServerId($folderId, (int) $request->headers->get('content-length'))->encrypted,
+            200,
+            [
                 'Content-Type' => 'text/plain',
-            ]);
-        }
-        return response(FilePond::getUploadId($savedFile), 200, [
-            'Content-Type' => 'text/plain',
-        ]);
+            ]
+        );
     }
 }

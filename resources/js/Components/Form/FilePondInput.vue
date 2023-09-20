@@ -29,6 +29,12 @@ export default defineComponent({
   },
   mounted() {
     this.filePond = FilePond.create(this.$refs.input, this.getOptions());
+
+    this.filePond.on('processfiles', () => {
+      this.filePond.getFiles().forEach(file => {
+        console.log(file.serverId);
+      });
+    });
   },
   updated() {
     if (this.filePond) {
@@ -41,6 +47,7 @@ export default defineComponent({
     }
   },
   methods: {
+
     getOptions(): FilePondOptions {
       return {
         ...this?.$lvw?.languageStrings?.filePond ?? {},

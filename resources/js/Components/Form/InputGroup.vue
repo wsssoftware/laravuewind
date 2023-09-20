@@ -7,6 +7,7 @@
           v-if="inputSlotExists"
           :id="finalId"
           :field="field"
+          :filePond="filePond"
           :form="form"
           :maskito="maskito"
           :theme="theme"
