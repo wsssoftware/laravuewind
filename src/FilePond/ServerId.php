@@ -14,10 +14,12 @@ readonly class ServerId
 
     public string $encrypted;
 
+    private string $basePath;
+
     /**
      * @throws \Exception
      */
-    private function __construct(?string $folderId = null, ?int $size = null, ?string $encrypted = null)
+    private function __construct(FilePondFactory $factory, ?string $folderId = null, ?int $size = null, ?string $encrypted = null)
     {
         if (!empty($folderId) && !empty($size)) {
             $this->folderId = $folderId;
@@ -38,22 +40,23 @@ readonly class ServerId
         } else {
             throw new Exception('Invalid server ID');
         }
+        $this->basePath = $factory->getBasePath();
     }
 
     /**
      * @throws \Exception
      */
-    public static function decode(string $encrypted): ServerId
+    public static function decode(FilePondFactory $factory, string $encrypted): ServerId
     {
-        return new ServerId(encrypted: $encrypted);
+        return new ServerId($factory, encrypted: $encrypted);
     }
 
     /**
      * @throws \Exception
      */
-    public static function create(string $folderId, int $size): ServerId
+    public static function create(FilePondFactory $factory, string $folderId, int $size): ServerId
     {
-        return new ServerId($folderId, $size);
+        return new ServerId($factory, $folderId, $size);
     }
 
     /**
@@ -65,11 +68,8 @@ readonly class ServerId
         return '';
     }
 
-    /**
-     * @throws \Exception
-     */
     public function getFolderPath(): string
     {
-        return \Laravuewind\Facades\FilePond::getBasePath() . DIRECTORY_SEPARATOR . $this->folderId . DIRECTORY_SEPARATOR;
+        return $this->basePath . DIRECTORY_SEPARATOR . $this->folderId . DIRECTORY_SEPARATOR;
     }
 }

@@ -3,104 +3,139 @@
 namespace Laravuewind\Http\Controllers\FilePond;
 
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
-use Laravuewind\Facades\FilePond;
+use Laravuewind\FilePond\FilePondFactory;
+use Laravuewind\FilePond\ServerId;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToCreateDirectory;
 
 class ChunkController extends BaseController
 {
-    public function __invoke(Request $request): Response
+
+    protected Filesystem|FilesystemAdapter $disk;
+    protected FilePondFactory $factory;
+    protected Request $request;
+    protected ServerId $serverId;
+
+    public function __construct(Request $request, FilePondFactory $factory)
     {
-        $serverId = $request->input('patch');
+        $memoryLimit = config('laravuewind.filepond.memory_limit');
+        if (is_numeric($memoryLimit)) {
+            ini_set('memory_limit', (int)$memoryLimit);
+        }
+        $this->request = $request;
+        $this->factory = $factory;
+        $this->disk = $factory->disk();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function __invoke(): Response
+    {
+        $serverId = $this->request->input('patch');
         abort_if(empty($serverId), 'No server id provided', 400);
         try {
-            $folderPath = FilePond::getFolderPath($serverId);
+            $this->serverId = $this->factory->getServerId($serverId);
         } catch (DecryptException) {
-            abort(400, 'Invalid upload id');
+            abort(400, 'Invalid upload id', ['Content-Type' => 'text/plain']);
         }
-
-        $offset = $request->server('HTTP_UPLOAD_OFFSET');
-        $length = $request->server('HTTP_UPLOAD_LENGTH');
+        $offset = $this->request->server('HTTP_UPLOAD_OFFSET');
         abort_if(
-            ! is_numeric($offset) || ! is_numeric($length),
-            'Invalid chunk length or offset', 400
+            ! is_numeric($offset) || ! is_numeric($this->request->server('HTTP_UPLOAD_LENGTH')),
+            'Invalid chunk length or offset', 400,
+            ['Content-Type' => 'text/plain']
         );
 
-        FilePond::disk()
-            ->put(
-                $folderPath."patch.$offset.tmp",
-                $request->getContent(), ['mimetype' => 'application/octet-stream']);
+        $this->disk->put(
+            $this->serverId->getFolderPath()."patch.$offset.tmp", $this->request->getContent(),
+            ['mimetype' => 'application/octet-stream']
+        );
 
-         $this->persistFileIfDone($request, $serverId, $folderPath);
-
-        return response('', 204);
+        return response(
+            status: match ($this->wasPersisted()) {
+                null => 204,
+                true => 200,
+                false => 500,
+            },
+            headers: ['Content-Type' => 'text/plain']
+        );
     }
 
-    private function persistFileIfDone(Request $request, string $serverId, string $folderPath): void
+    protected function getFilename(): string
     {
-        $disk = FilePond::disk();
+        $filename = $this->request->headers->get('upload-name');
+        abort_if(
+            empty($filename) || !is_string($filename),
+            'No file name provided',
+            500,
+            ['Content-Type' => 'text/plain']
+        );
+        return $filename;
+    }
 
-        $size = 0;
-        $chunks = $disk
-            ->files($folderPath);
+    protected function mergeChunk(int $carry, string $chunkFilePath, $resource): int {
+        fwrite($resource, $this->disk->get($chunkFilePath));
+        return $carry + 1;
+    }
 
-        foreach ($chunks as $chunk) {
-            $size += $disk
-                ->size($chunk);
+    private function wasPersisted(): ?bool
+    {
+        $filenamePath = $this->serverId->getFolderPath().$this->getFilename();
+        if ($this->disk->exists($filenamePath)) {
+            $this->disk->delete($filenamePath);
         }
-        $wantedSize = $request->headers->get('upload-length', 0);
+
+        $chunks = collect($this->disk->files($this->serverId->getFolderPath()));
+        $size = $chunks->sum(fn($chunk) => $this->disk->size($chunk));
+        $wantedSize = (int)$this->request->headers->get('upload-length', 0);
 
         if ($size < $wantedSize) {
-            return;
+            return null;
         }
 
-        // Sort chunks
-        $chunks = collect($chunks);
-        $chunks = $chunks->keyBy(function ($chunk) {
-            return substr($chunk, strrpos($chunk, '.') + 1);
-        });
-        $chunks = $chunks->sortKeys();
+        $file = fopen($this->disk->path($filenamePath), 'w');
+        abort_if($file === false, 'Could not open file', 500, ['Content-Type' => 'text/plain']);
+        $chunks = $chunks
+            ->mapWithKeys(fn($chunk) => [
+                str($chunk)->afterLast(DIRECTORY_SEPARATOR)->replace(['patch.', '.tmp'], '')->toInteger() => $chunk,
+            ])
+            ->sortKeys(SORT_NUMERIC);
 
-        // Append each chunk to the final file
-        $data = '';
-        foreach ($chunks as $chunk) {
-            // Get chunk contents
-            $chunkContents = $disk
-                ->get($chunk);
+        $processedChunks = $chunks->reduce(
+            fn (int $carry, string $chunkPath) => $this->mergeChunk($carry, $chunkPath, $file),
+            0
+        );
+        abort_if(fclose($file) === false, 'Could not close file', 500, ['Content-Type' => 'text/plain']);
 
-            // Laravel's local disk implementation is quite inefficient for appending data to existing files
-            // To be at least a bit more efficient, we build the final content ourselves, but the most efficient
-            // Way to do this would be to append using the driver's capabilities
-            $data .= $chunkContents;
-            unset($chunkContents);
+        if ($processedChunks === $chunks->count() && $this->disk->size($filenamePath) === $wantedSize) {
+            $chunks->each(fn($chunk) => $this->disk->delete($chunk));
+            $this->factory->garbageCollect();
+            return true;
         }
-        Storage::disk($disk)->put($finalFilePath, $data, ['mimetype' => 'application/octet-stream']);
-        Storage::disk($disk)->deleteDirectory($basePath);
+        return false;
     }
 
 
-    public static function initChunk(Request $request): Response
+    public static function initChunk(Request $request, FilePondFactory $factory): Response
     {
-        $folderId = FilePond::createFolderId();
-        $folderPath = FilePond::getBasePath().DIRECTORY_SEPARATOR.$folderId.DIRECTORY_SEPARATOR;
+        $folderId = $factory->createFolderId();
+        $folderPath = $factory->getBasePath().DIRECTORY_SEPARATOR.$folderId.DIRECTORY_SEPARATOR;
 
         try {
-            FilePond::disk()->createDirectory($folderPath);
+            $factory->disk()->createDirectory($folderPath);
         } catch (UnableToCreateDirectory|FilesystemException) {
-            return response('Could not create file', 500, [
-                'Content-Type' => 'text/plain',
-            ]);
+            return response('Could not create file', 500, ['Content-Type' => 'text/plain']);
         }
 
         return response(
-            FilePond::createServerId($folderId, (int) $request->headers->get('upload-length'))->encrypted,
+            $factory->createServerId($folderId, (int) $request->headers->get('upload-length'))->encrypted,
             200,
-            [
-                'Content-Type' => 'text/plain',
-            ]
+            ['Content-Type' => 'text/plain']
         );
     }
 }
