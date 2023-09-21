@@ -14,7 +14,7 @@ class GarbageCollector
     {
         $took = Benchmark::measure(fn () => $this->collect());
         Log::info(sprintf(
-            'FilePond garbage collector deleted %s upload(s) in %.1fms',
+            'FilePond garbage collector deleted %s outdated upload(s) in %.1fms',
             $this->deleted,
             $took
         ));

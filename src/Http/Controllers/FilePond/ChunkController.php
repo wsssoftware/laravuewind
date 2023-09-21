@@ -85,6 +85,7 @@ class ChunkController extends BaseController
 
     private function wasPersisted(): ?bool
     {
+        $tmpFilenamePath = $this->serverId->getFolderPath().'patch.*.tmp';
         $filenamePath = $this->serverId->getFolderPath().$this->getFilename();
         if ($this->disk->exists($filenamePath)) {
             $this->disk->delete($filenamePath);
@@ -98,7 +99,7 @@ class ChunkController extends BaseController
             return null;
         }
 
-        $file = fopen($this->disk->path($filenamePath), 'w');
+        $file = fopen($this->disk->path($tmpFilenamePath), 'w');
         abort_if($file === false, 'Could not open file', 500, ['Content-Type' => 'text/plain']);
         $chunks = $chunks
             ->mapWithKeys(fn($chunk) => [
@@ -111,6 +112,13 @@ class ChunkController extends BaseController
             0
         );
         abort_if(fclose($file) === false, 'Could not close file', 500, ['Content-Type' => 'text/plain']);
+
+        abort_if(
+            !$this->disk->move($tmpFilenamePath, $filenamePath),
+            'Could not move file',
+            500,
+            ['Content-Type' => 'text/plain']
+        );
 
         if ($processedChunks === $chunks->count() && $this->disk->size($filenamePath) === $wantedSize) {
             $chunks->each(fn($chunk) => $this->disk->delete($chunk));

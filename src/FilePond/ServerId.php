@@ -16,11 +16,14 @@ readonly class ServerId
 
     private string $basePath;
 
+    private FilePondFactory $factory;
+
     /**
      * @throws \Exception
      */
     private function __construct(FilePondFactory $factory, ?string $folderId = null, ?int $size = null, ?string $encrypted = null)
     {
+        $this->factory = $factory;
         if (!empty($folderId) && !empty($size)) {
             $this->folderId = $folderId;
             $this->size = $size;
@@ -64,8 +67,11 @@ readonly class ServerId
      */
     public function getFilePath(): string
     {
-
-        return '';
+        $files = collect($this->factory->disk()->files($this->getFolderPath()));
+        if ($files->count() !== 1) {
+            throw new Exception('Invalid server ID');
+        }
+        return $files->first();
     }
 
     public function getFolderPath(): string
