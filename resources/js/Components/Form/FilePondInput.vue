@@ -10,7 +10,7 @@ import {PropType} from "vue/dist/vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 import {FilePondParams} from "./InputTypes";
 import * as FilePond from "filepond";
-import {FilePondOptions} from "filepond";
+import {FilePondFile, FilePondOptions} from "filepond";
 
 export default defineComponent({
   name: "FilePondInput",
@@ -28,13 +28,13 @@ export default defineComponent({
     }
   },
   mounted() {
+    FilePond.registerPlugin(...this.params.plugins ?? [])
     this.filePond = FilePond.create(this.$refs.input, this.getOptions());
-
-    this.filePond.on('processfiles', () => {
-      this.filePond.getFiles().forEach(file => {
-        console.log(file.serverId);
-      });
-    });
+    this.filePond.on('initfile', this.loading);
+    this.filePond.on('processfilerevert', this.loading);
+    this.filePond.on('processfiles', this.loaded);
+    this.filePond.on('removefile', this.loaded);
+    this.filePond.on('error', this.validationFail);
   },
   updated() {
     if (this.filePond) {
@@ -47,7 +47,9 @@ export default defineComponent({
     }
   },
   methods: {
-
+    getInstance(): FilePond {
+      return this.filePond;
+    },
     getOptions(): FilePondOptions {
       return {
         ...this?.$lvw?.languageStrings?.filePond ?? {},
@@ -67,7 +69,21 @@ export default defineComponent({
           }
         }
       };
-    }
+    },
+    loaded(): void {
+      let serverIds: string[] = [];
+      this.filePond.getFiles().forEach((file: FilePondFile) => {
+        serverIds.push(file.serverId);
+      });
+      this.form[this.field] = this.params?.options?.allowMultiple ?? false ? serverIds : serverIds[0] ?? null;
+      this.form.processing = false;
+    },
+    loading() {
+      this.form.processing = true;
+    },
+    validationFail() {
+      this.form.processing = false;
+    },
   }
 })
 </script>
