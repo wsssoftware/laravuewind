@@ -21,10 +21,14 @@ readonly class ServerId
     /**
      * @throws \Exception
      */
-    private function __construct(FilePondFactory $factory, ?string $folderId = null, ?int $size = null, ?string $encrypted = null)
-    {
+    private function __construct(
+        FilePondFactory $factory,
+        ?string $folderId = null,
+        ?int $size = null,
+        ?string $encrypted = null
+    ) {
         $this->factory = $factory;
-        if (!empty($folderId) && !empty($size)) {
+        if ( ! empty($folderId) && ! empty($size)) {
             $this->folderId = $folderId;
             $this->size = $size;
             $data = [
@@ -32,7 +36,7 @@ readonly class ServerId
                 'size' => $this->size,
             ];
             $this->encrypted = Crypt::encryptString(json_encode($data));
-        } elseif (!empty($encrypted)) {
+        } elseif ( ! empty($encrypted)) {
             $this->encrypted = $encrypted;
             $data = json_decode(Crypt::decryptString($encrypted), true);
             if ($data === null || empty($data['folder']) || empty($data['size'])) {
@@ -67,15 +71,20 @@ readonly class ServerId
      */
     public function getFilePath(): string
     {
-        $files = collect($this->factory->disk()->files($this->getFolderPath()));
-        if ($files->count() !== 1) {
-            throw new Exception('Invalid server ID');
-        }
-        return $files->first();
+        $files = collect($this->factory->disk()->files($this->getFolderPath()))
+            ->filter(fn(string $path) => ! str_ends_with($path, FilePondUploadedFile::EXTENDED_FILENAME_POSTFIX));
+        return match ($files->count()) {
+            0 => throw new Exception(sprintf(
+                'The upload "%s" file does not exist or has been already removed',
+                $this->folderId
+            )),
+            1 => $files->first(),
+            default => throw new Exception(sprintf('The upload "%s" has more than one file', $this->folderId)),
+        };
     }
 
     public function getFolderPath(): string
     {
-        return $this->basePath . DIRECTORY_SEPARATOR . $this->folderId . DIRECTORY_SEPARATOR;
+        return $this->basePath.DIRECTORY_SEPARATOR.$this->folderId.DIRECTORY_SEPARATOR;
     }
 }

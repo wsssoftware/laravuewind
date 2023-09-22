@@ -7,8 +7,10 @@ use Illuminate\Support\Collection;
 
 class FilePond
 {
-    public function __construct(protected FilePondFactory $factory)
-    {
+    public function __construct(
+        protected FilePondFactory $factory
+    ) {
+        //
     }
 
     /**
@@ -26,7 +28,7 @@ class FilePond
         $collection = $collection
             ->ensure('string')
             ->map(function (string $serverId) {
-                return new FilePondUploadedFile($this->factory->disk(), $this->factory->getServerId($serverId)->getFilePath());
+                return FilePondUploadedFile::createFromServerId($this->factory, $this->factory->getServerId($serverId));
             })
             ->ensure(FilePondUploadedFile::class);
         return $collection->count() > 1 || $alwaysCollection ? $collection : $collection->first();

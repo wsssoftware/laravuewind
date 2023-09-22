@@ -2,99 +2,139 @@
 
 namespace Laravuewind\FilePond;
 
-use Closure;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use const UPLOAD_ERR_OK;
 
-class FilePondUploadedFile
+class FilePondUploadedFile extends UploadedFile
 {
-    protected ?Closure $beforeMoveCallback = null;
+    public const EXTENDED_FILENAME_POSTFIX = "extended_file.tmp";
 
-    protected Filesystem|FilesystemAdapter $originalDisk;
-    protected string $originalFilePath;
+    protected ?BeforeStore $beforeStore = null;
+    protected static bool $removeUploadFileOnShutdown = true;
 
-    public function __construct(
-        protected Filesystem|FilesystemAdapter $disk,
-        protected string $filePath
+    protected function __construct(
+        protected FilePondFactory $factory,
+        protected ServerId $serverId,
+        string $path,
+        string $originalName,
+        string $mimeType = null,
+        int $error = null,
+        bool $test = false
     ) {
-        $this->originalDisk = $disk;
-        $this->originalFilePath = $this->filePath;
+        if (self::$removeUploadFileOnShutdown) {
+            register_shutdown_function(fn() => $factory->removeUpload($serverId));
+        }
+        parent::__construct($path, $originalName, $mimeType, $error, $test);
     }
 
-    public function beforeMove(Closure $callback): static
+
+    public function beforeStore(BeforeStore $beforeStore): self
     {
-        $this->beforeMoveCallback = $callback;
+        $this->beforeStore = $beforeStore;
         return $this;
     }
 
-    public function copy(string $to, string $targetDisk = null, mixed $options = []): bool
+    protected function callBeforeStore(): FilePondUploadedFile|null
     {
-        if ($targetDisk === null && $this->disk->copy($this->filePath, $to)) {
-            return true;
-        } elseif ($targetDisk !== null) {
-            $targetDisk = Storage::disk($targetDisk);
-            if ($targetDisk->put($to, $this->disk->get($this->filePath), $options)) {
-                return true;
+        if ($this->beforeStore) {
+            $content = $this->beforeStore
+                ->setFilePondUploadFile($this)
+                ->handle();
+            return $this->createExtendedFilePondUploadedFile($content);
+        }
+        return null;
+    }
+
+    protected function createExtendedFilePondUploadedFile(string $content): FilePondUploadedFile
+    {
+        $filename = sprintf('%s.%s', Str::random(), self::EXTENDED_FILENAME_POSTFIX);
+        $filepath = sprintf(
+            '%s%s',
+            $this->serverId->getFolderPath(),
+            $filename
+        );
+        $disk = $this->factory->disk();
+        $disk->put($filepath, $content);
+
+        return new FilePondUploadedFile(
+            $this->factory,
+            $this->serverId,
+            $disk->path($filepath),
+            $filename,
+            $disk->mimeType($filepath)
+        );
+    }
+
+    public static function createFromServerId(
+        FilePondFactory $factory,
+        ServerId $serverId,
+    ): FilePondUploadedFile {
+        $disk = $factory->disk();
+        $diskFilePath = $serverId->getFilePath();
+        $filepath = $disk->path($diskFilePath);
+
+        return new static($factory, $serverId, $filepath, basename($filepath), $disk->mimeType($diskFilePath));
+    }
+
+    public function isValid(): bool
+    {
+        $isOk = UPLOAD_ERR_OK === $this->getError();
+        $pathBegin = $this->factory->disk()->path($this->serverId->getFolderPath());
+        return $isOk && str_starts_with($this->getPathname(), $pathBegin);
+    }
+
+    public function store($path = '', $options = []): false|string
+    {
+        return $this->callBeforeStore()
+            ?->store($path, $options) ?? parent::store($path, $options);
+    }
+
+    public function storeAs($path, $name = null, $options = []): false|string
+    {
+        return $this->callBeforeStore()
+            ?->storeAs($path, $name, $options) ?? parent::storeAs($path, $name, $options);
+    }
+
+    /**
+     * @param  \Laravuewind\FilePond\StoreManyItem[]|Collection<int, \Laravuewind\FilePond\StoreManyItem>  $items
+     */
+    public function storeMany(array|Collection $items, string|array $options = []): bool
+    {
+        if (is_array($items)) {
+            $items = collect($items);
+        }
+        $items->ensure(StoreManyItem::class);
+        $file = $this->callBeforeStore() ?? $this;
+        $itsOk = true;
+        foreach ($items as $item) {
+            $item->setFilePondUploadFile($file);
+            $extendedFile = $this->createExtendedFilePondUploadedFile($item->handle());
+            $extendedOptions = $item->options() ?? $options;
+            if ($item->name() && ! $extendedFile->storeAs($item->path(), $item->name(), $extendedOptions)) {
+                $itsOk = false;
+            } elseif ( ! $item->name() && ! $extendedFile->store($item->path(), $extendedOptions)) {
+                $itsOk = false;
             }
         }
-        return false;
+        return $itsOk;
     }
 
-    public function disk(): Filesystem|FilesystemAdapter
+    public function storePublicly($path = '', $options = []): false|string
     {
-        return $this->disk;
+        return $this->callBeforeStore()
+            ?->storePublicly($path, $options) ?? parent::storePublicly($path, $options);
     }
 
-    public function filePath(): string
+    public function storePubliclyAs($path, $name = null, $options = []): false|string
     {
-        return $this->filePath;
+        return $this->callBeforeStore()
+            ?->storePubliclyAs($path, $name, $options) ?? parent::storePubliclyAs($path, $name, $options);
     }
 
-    public function get(): string|null
+    public static function withoutRemoveUploadFileOnShutdown(): void
     {
-        return $this->disk->get($this->filePath);
-    }
-
-    public function json(): array|null
-    {
-        return $this->disk->json($this->filePath);
-    }
-
-    public function mimeType(): string
-    {
-        return $this->disk->mimeType($this->filePath);
-    }
-
-    public function move(string $to, string $targetDisk = null, mixed $options = []): bool
-    {
-        if ($this->beforeMoveCallback instanceof Closure) {;
-            $disk = !empty($targetDisk) ? Storage::disk($targetDisk) : $this->disk;
-            if ($disk->put($to, $this->beforeMoveCallback->call($this, $this), $options)) {
-                $this->removeUpload();
-                return true;
-            }
-        } elseif ($targetDisk === null && $this->disk->move($this->filePath, $to)) {
-            $this->removeUpload();
-            $this->filePath = $to;
-            return true;
-        } elseif ($targetDisk !== null && $this->copy($to, $targetDisk, $options)) {
-            $this->removeUpload();
-            $this->disk->delete($this->filePath);
-            $this->disk = Storage::disk($targetDisk);
-            $this->filePath = $to;
-            return true;
-        }
-        return false;
-    }
-
-    public function removeUpload(): void
-    {
-        $this->originalDisk->deleteDirectory(dirname($this->originalFilePath));
-    }
-
-    public function size(): int
-    {
-        return $this->disk->size($this->filePath);
+        static::$removeUploadFileOnShutdown = false;
     }
 }

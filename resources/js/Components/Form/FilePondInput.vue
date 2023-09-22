@@ -76,6 +76,7 @@ export default defineComponent({
         serverIds.push(file.serverId);
       });
       this.form[this.field] = this.params?.options?.allowMultiple ?? false ? serverIds : serverIds[0] ?? null;
+      console.log(this.form[this.field]);
       this.form.processing = false;
     },
     loading() {

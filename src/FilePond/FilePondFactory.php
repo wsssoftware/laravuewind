@@ -69,4 +69,14 @@ class FilePondFactory
     {
         return ServerId::decode($this, $encrypted);
     }
+
+    /**
+     * @param  \Laravuewind\FilePond\ServerId  $serverId
+     * @return bool
+     * @throws \Exception
+     */
+    public function removeUpload(ServerId $serverId): bool
+    {
+        return $this->disk()->deleteDirectory($serverId->getFolderPath());
+    }
 }
