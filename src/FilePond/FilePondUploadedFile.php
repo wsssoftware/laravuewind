@@ -12,7 +12,9 @@ class FilePondUploadedFile extends UploadedFile
     public const EXTENDED_FILENAME_POSTFIX = "extended_file.tmp";
 
     protected ?BeforeStore $beforeStore = null;
-    protected static bool $removeUploadFileOnShutdown = true;
+
+    protected static Collection $registeredShutdowns;
+    protected static bool $removeUploadFileOnShutdownAfterStore = true;
 
     protected function __construct(
         protected FilePondFactory $factory,
@@ -23,12 +25,17 @@ class FilePondUploadedFile extends UploadedFile
         int $error = null,
         bool $test = false
     ) {
-        if (self::$removeUploadFileOnShutdown) {
-            register_shutdown_function(fn() => $factory->removeUpload($serverId));
-        }
         parent::__construct($path, $originalName, $mimeType, $error, $test);
     }
 
+    protected function afterStore(false|string $result): false|string
+    {
+        if ($result === false) {
+            return false;
+        }
+        $this->setRemoveUploadFIleOnShutdown();
+        return $result;
+    }
 
     public function beforeStore(BeforeStore $beforeStore): self
     {
@@ -87,14 +94,16 @@ class FilePondUploadedFile extends UploadedFile
 
     public function store($path = '', $options = []): false|string
     {
-        return $this->callBeforeStore()
+        $result = $this->callBeforeStore()
             ?->store($path, $options) ?? parent::store($path, $options);
+        return $this->afterStore($result);
     }
 
     public function storeAs($path, $name = null, $options = []): false|string
     {
-        return $this->callBeforeStore()
+        $result = $this->callBeforeStore()
             ?->storeAs($path, $name, $options) ?? parent::storeAs($path, $name, $options);
+        return $this->afterStore($result);
     }
 
     /**
@@ -118,23 +127,39 @@ class FilePondUploadedFile extends UploadedFile
                 $itsOk = false;
             }
         }
-        return $itsOk;
+        return $this->afterStore($itsOk);
     }
 
     public function storePublicly($path = '', $options = []): false|string
     {
-        return $this->callBeforeStore()
+        $result = $this->callBeforeStore()
             ?->storePublicly($path, $options) ?? parent::storePublicly($path, $options);
+        return $this->afterStore($result);
     }
 
     public function storePubliclyAs($path, $name = null, $options = []): false|string
     {
-        return $this->callBeforeStore()
+        $result = $this->callBeforeStore()
             ?->storePubliclyAs($path, $name, $options) ?? parent::storePubliclyAs($path, $name, $options);
+        return $this->afterStore($result);
     }
 
-    public static function withoutRemoveUploadFileOnShutdown(): void
+    public static function withoutRemoveUploadFileOnShutdownAfterStore(): void
     {
-        static::$removeUploadFileOnShutdown = false;
+        static::$removeUploadFileOnShutdownAfterStore = false;
+    }
+
+    protected function setRemoveUploadFIleOnShutdown(): void
+    {
+        if (self::$removeUploadFileOnShutdownAfterStore) {
+            if (empty(self::$registeredShutdowns)) {
+                self::$registeredShutdowns = collect();
+            }
+            $folderId = $this->serverId->folderId;
+            if ( ! self::$registeredShutdowns->has($folderId)) {
+                self::$registeredShutdowns->put($folderId, true);
+                register_shutdown_function(fn() => $this->factory->removeUpload($folderId));
+            }
+        }
     }
 }
