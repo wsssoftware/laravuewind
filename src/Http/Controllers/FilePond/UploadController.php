@@ -9,7 +9,6 @@ use Laravuewind\FilePond\FilePondFactory;
 
 class UploadController extends BaseController
 {
-
     /**
      * @throws \Exception
      */
@@ -17,7 +16,7 @@ class UploadController extends BaseController
     {
         $memoryLimit = config('laravuewind.filepond.memory_limit');
         if (is_numeric($memoryLimit)) {
-            ini_set('memory_limit', (int)$memoryLimit);
+            ini_set('memory_limit', (int) $memoryLimit);
         }
         $input = $request->file('filepond');
 
@@ -37,6 +36,7 @@ class UploadController extends BaseController
         abort_if(! $savedFile, 500, 'Could not save file', ['Content-Type' => 'text/plain']);
 
         $factory->garbageCollect();
+
         return response(
             $factory->createServerId($folderId, (int) $request->headers->get('content-length'))->encrypted,
             200,

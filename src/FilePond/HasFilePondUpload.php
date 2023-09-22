@@ -14,7 +14,7 @@ trait HasFilePondUpload
     protected function setFilePondInput(string $input): void
     {
         $serverId = $this->input($input);
-        if (!is_array($serverId) && !is_string($serverId)) {
+        if (! is_array($serverId) && ! is_string($serverId)) {
             return;
         } elseif (is_array($serverId)) {
             $files = [];

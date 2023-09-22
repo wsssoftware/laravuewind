@@ -6,9 +6,10 @@ abstract class BeforeStore
 {
     protected readonly FilePondUploadedFile $filePondUploadFile;
 
-    final public function setFilePondUploadFile (FilePondUploadedFile $filePondUploadFile): self
+    final public function setFilePondUploadFile(FilePondUploadedFile $filePondUploadFile): self
     {
         $this->filePondUploadFile = $filePondUploadFile;
+
         return $this;
     }
 

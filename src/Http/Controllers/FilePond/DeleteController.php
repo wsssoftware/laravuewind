@@ -16,7 +16,7 @@ class DeleteController extends BaseController
     {
         $memoryLimit = config('laravuewind.filepond.memory_limit');
         if (is_numeric($memoryLimit)) {
-            ini_set('memory_limit', (int)$memoryLimit);
+            ini_set('memory_limit', (int) $memoryLimit);
         }
         $serverId = $factory->getServerId($request->getContent());
         if ($factory->disk()->deleteDirectory($serverId->getFolderPath())) {

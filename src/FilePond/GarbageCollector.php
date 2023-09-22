@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Log;
 
 class GarbageCollector
 {
-
     protected int $deleted = 0;
 
     public function __invoke(): void

@@ -2,18 +2,20 @@
 
 namespace Laravuewind\FilePond;
 
+use const UPLOAD_ERR_OK;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
-    public const EXTENDED_FILENAME_POSTFIX = "extended_file.tmp";
+    public const EXTENDED_FILENAME_POSTFIX = 'extended_file.tmp';
 
     protected ?BeforeStore $beforeStore = null;
 
     protected static Collection $registeredShutdowns;
+
     protected static bool $removeUploadFileOnShutdownAfterStore = true;
 
     protected function __construct(
@@ -34,23 +36,27 @@ class FilePondUploadedFile extends UploadedFile
             return false;
         }
         $this->setRemoveUploadFIleOnShutdown();
+
         return $result;
     }
 
     public function beforeStore(BeforeStore $beforeStore): self
     {
         $this->beforeStore = $beforeStore;
+
         return $this;
     }
 
-    protected function callBeforeStore(): FilePondUploadedFile|null
+    protected function callBeforeStore(): ?FilePondUploadedFile
     {
         if ($this->beforeStore) {
             $content = $this->beforeStore
                 ->setFilePondUploadFile($this)
                 ->handle();
+
             return $this->createExtendedFilePondUploadedFile($content);
         }
+
         return null;
     }
 
@@ -87,8 +93,9 @@ class FilePondUploadedFile extends UploadedFile
 
     public function isValid(): bool
     {
-        $isOk = UPLOAD_ERR_OK === $this->getError();
+        $isOk = $this->getError() === UPLOAD_ERR_OK;
         $pathBegin = $this->factory->disk()->path($this->serverId->getFolderPath());
+
         return $isOk && str_starts_with($this->getPathname(), $pathBegin);
     }
 
@@ -96,6 +103,7 @@ class FilePondUploadedFile extends UploadedFile
     {
         $result = $this->callBeforeStore()
             ?->store($path, $options) ?? parent::store($path, $options);
+
         return $this->afterStore($result);
     }
 
@@ -103,6 +111,7 @@ class FilePondUploadedFile extends UploadedFile
     {
         $result = $this->callBeforeStore()
             ?->storeAs($path, $name, $options) ?? parent::storeAs($path, $name, $options);
+
         return $this->afterStore($result);
     }
 
@@ -123,10 +132,11 @@ class FilePondUploadedFile extends UploadedFile
             $extendedOptions = $item->options() ?? $options;
             if ($item->name() && ! $extendedFile->storeAs($item->path(), $item->name(), $extendedOptions)) {
                 $itsOk = false;
-            } elseif ( ! $item->name() && ! $extendedFile->store($item->path(), $extendedOptions)) {
+            } elseif (! $item->name() && ! $extendedFile->store($item->path(), $extendedOptions)) {
                 $itsOk = false;
             }
         }
+
         return $this->afterStore($itsOk);
     }
 
@@ -134,6 +144,7 @@ class FilePondUploadedFile extends UploadedFile
     {
         $result = $this->callBeforeStore()
             ?->storePublicly($path, $options) ?? parent::storePublicly($path, $options);
+
         return $this->afterStore($result);
     }
 
@@ -141,6 +152,7 @@ class FilePondUploadedFile extends UploadedFile
     {
         $result = $this->callBeforeStore()
             ?->storePubliclyAs($path, $name, $options) ?? parent::storePubliclyAs($path, $name, $options);
+
         return $this->afterStore($result);
     }
 
@@ -156,9 +168,9 @@ class FilePondUploadedFile extends UploadedFile
                 self::$registeredShutdowns = collect();
             }
             $folderId = $this->serverId->folderId;
-            if ( ! self::$registeredShutdowns->has($folderId)) {
+            if (! self::$registeredShutdowns->has($folderId)) {
                 self::$registeredShutdowns->put($folderId, true);
-                register_shutdown_function(fn() => $this->factory->removeUpload($this->serverId));
+                register_shutdown_function(fn () => $this->factory->removeUpload($this->serverId));
             }
         }
     }

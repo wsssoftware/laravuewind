@@ -33,6 +33,7 @@ class LaravuewindServiceProvider extends PackageServiceProvider
         $this->app->bind(FilePond::class, function (Application $app) {
             return new FilePond($app->make(FilePondFactory::class));
         });
+
         return parent::boot();
     }
 }

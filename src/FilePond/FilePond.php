@@ -2,7 +2,6 @@
 
 namespace Laravuewind\FilePond;
 
-
 use Illuminate\Support\Collection;
 
 class FilePond
@@ -31,6 +30,7 @@ class FilePond
                 return FilePondUploadedFile::createFromServerId($this->factory, $this->factory->getServerId($serverId));
             })
             ->ensure(FilePondUploadedFile::class);
+
         return $collection->count() > 1 || $alwaysCollection ? $collection : $collection->first();
     }
 }

@@ -15,17 +15,19 @@ use League\Flysystem\UnableToCreateDirectory;
 
 class ChunkController extends BaseController
 {
-
     protected Filesystem|FilesystemAdapter $disk;
+
     protected FilePondFactory $factory;
+
     protected Request $request;
+
     protected ServerId $serverId;
 
     public function __construct(Request $request, FilePondFactory $factory)
     {
         $memoryLimit = config('laravuewind.filepond.memory_limit');
         if (is_numeric($memoryLimit)) {
-            ini_set('memory_limit', (int)$memoryLimit);
+            ini_set('memory_limit', (int) $memoryLimit);
         }
         $this->request = $request;
         $this->factory = $factory;
@@ -70,16 +72,19 @@ class ChunkController extends BaseController
     {
         $filename = $this->request->headers->get('upload-name');
         abort_if(
-            empty($filename) || !is_string($filename),
+            empty($filename) || ! is_string($filename),
             'No file name provided',
             500,
             ['Content-Type' => 'text/plain']
         );
+
         return $filename;
     }
 
-    protected function mergeChunk(int $carry, string $chunkFilePath, $resource): int {
+    protected function mergeChunk(int $carry, string $chunkFilePath, $resource): int
+    {
         fwrite($resource, $this->disk->get($chunkFilePath));
+
         return $carry + 1;
     }
 
@@ -92,8 +97,8 @@ class ChunkController extends BaseController
         }
 
         $chunks = collect($this->disk->files($this->serverId->getFolderPath()));
-        $size = $chunks->sum(fn($chunk) => $this->disk->size($chunk));
-        $wantedSize = (int)$this->request->headers->get('upload-length', 0);
+        $size = $chunks->sum(fn ($chunk) => $this->disk->size($chunk));
+        $wantedSize = (int) $this->request->headers->get('upload-length', 0);
 
         if ($size < $wantedSize) {
             return null;
@@ -102,7 +107,7 @@ class ChunkController extends BaseController
         $file = fopen($this->disk->path($tmpFilenamePath), 'w');
         abort_if($file === false, 'Could not open file', 500, ['Content-Type' => 'text/plain']);
         $chunks = $chunks
-            ->mapWithKeys(fn($chunk) => [
+            ->mapWithKeys(fn ($chunk) => [
                 str($chunk)->afterLast(DIRECTORY_SEPARATOR)->replace(['patch.', '.tmp'], '')->toInteger() => $chunk,
             ])
             ->sortKeys(SORT_NUMERIC);
@@ -114,20 +119,21 @@ class ChunkController extends BaseController
         abort_if(fclose($file) === false, 'Could not close file', 500, ['Content-Type' => 'text/plain']);
 
         abort_if(
-            !$this->disk->move($tmpFilenamePath, $filenamePath),
+            ! $this->disk->move($tmpFilenamePath, $filenamePath),
             'Could not move file',
             500,
             ['Content-Type' => 'text/plain']
         );
 
         if ($processedChunks === $chunks->count() && $this->disk->size($filenamePath) === $wantedSize) {
-            $chunks->each(fn($chunk) => $this->disk->delete($chunk));
+            $chunks->each(fn ($chunk) => $this->disk->delete($chunk));
             $this->factory->garbageCollect();
+
             return true;
         }
+
         return false;
     }
-
 
     public static function initChunk(Request $request, FilePondFactory $factory): Response
     {
