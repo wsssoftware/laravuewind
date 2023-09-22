@@ -7,7 +7,7 @@
     <Selected
         @remove="remove"
         :class="{'lvw-placeholder': placeholder && choice === undefined}"
-        :choice="placeholder && choice === undefined ? {key:null, value: placeholder} : choice"
+        :choice="choice === undefined ? {key:null, value: placeholder} : choice"
         :multiple="multiple"
         :theme="theme"/>
     <div class="flex justify-center items-center gap-x-1">

@@ -13,6 +13,10 @@
           v-if="searchable && search !== '' && filtered.length === 0"
           :theme="theme"/>
 
+      <NoChoices
+          v-if="!search && filtered.length === 0"
+          :theme="theme"/>
+
       <ListboxOption
           v-slot="{ active, selected }"
           v-for="choice in filtered"
@@ -30,14 +34,16 @@
 import {Component, defineComponent} from "vue";
 import {PropType} from "vue/dist/vue";
 import {SelectChoice} from "../InputTypes";
-import {ListboxOptions, ListboxOption} from '@headlessui/vue'
+import {ListboxOption, ListboxOptions} from '@headlessui/vue'
 import Option from "./Option.vue";
 import SearchInput from "./SearchInput.vue";
 import SearchNoResultsFound from "./SearchNoResultsFound.vue";
+import NoChoices from "./NoChoices.vue";
 
 export default defineComponent({
   name: "Options",
   components: {
+    NoChoices,
     SearchNoResultsFound,
     SearchInput,
     Option,
@@ -65,7 +71,7 @@ export default defineComponent({
   },
   methods: {
     resetSearch() {
-      if (this.searchable && this.open) {
+      if (this.open) {
         this.search = ''
         this.filtered = this.choices
       }

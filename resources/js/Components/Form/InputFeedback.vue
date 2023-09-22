@@ -20,6 +20,10 @@ export default defineComponent({
     feedback: String,
     field: {type: String, required: true},
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
+    hasArrayErrors: {
+      type: Boolean,
+      default: false,
+    },
     showMaxLength: Boolean,
     theme: String,
   },
@@ -27,6 +31,12 @@ export default defineComponent({
     errors(): string|false
     {
       let errors: undefined|string|false = this.form.errors[this.field];
+      if (this.hasArrayErrors) {
+        if (errors === undefined) {
+          let key: string = Object.keys(this.form.errors).find(key => key.startsWith(this.field + '.')) ?? '';
+          errors = this.form.errors[key];
+        }
+      }
       return errors !== false && (errors === undefined || errors.trim() === '') ? false : errors;
     },
     finalMessage(): false|string {

@@ -28,7 +28,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    FilePond.registerPlugin(...this.params.plugins ?? [])
+    FilePond.registerPlugin(...this.params?.plugins ?? [])
     this.filePond = FilePond.create(this.$refs.input, this.getOptions());
     this.filePond.on('initfile', this.loading);
     this.filePond.on('processfilerevert', this.loading);
@@ -52,6 +52,8 @@ export default defineComponent({
     },
     getOptions(): FilePondOptions {
       return {
+        chunkUploads: true,
+        credits: false,
         ...this?.$lvw?.languageStrings?.filePond ?? {},
         ...this.getServer(),
         ...this.params?.options ?? {},
@@ -76,7 +78,6 @@ export default defineComponent({
         serverIds.push(file.serverId);
       });
       this.form[this.field] = this.params?.options?.allowMultiple ?? false ? serverIds : serverIds[0] ?? null;
-      console.log(this.form[this.field]);
       this.form.processing = false;
     },
     loading() {

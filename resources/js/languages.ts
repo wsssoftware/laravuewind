@@ -40,6 +40,7 @@ export type translateStrings = {
     },
     form: {
         select: {
+            noChoices: string,
             searchPlaceholder: string,
             searchNotFound: string,
         }
@@ -53,6 +54,7 @@ const en: translateStrings = {
     filePond: filePondEn,
     form: {
         select: {
+            noChoices: 'No items available',
             searchPlaceholder: 'What are you looking for?',
             searchNotFound: 'No results found',
         }
@@ -63,6 +65,7 @@ const pt_BR: translateStrings = {
     filePond: filePondPtBR,
     form: {
         select: {
+            noChoices: 'Nenhum item disponível',
             searchPlaceholder: 'O que você está procurando?',
             searchNotFound: 'Nenhum resultado encontrado',
         }

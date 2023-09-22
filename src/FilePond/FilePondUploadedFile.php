@@ -158,7 +158,7 @@ class FilePondUploadedFile extends UploadedFile
             $folderId = $this->serverId->folderId;
             if ( ! self::$registeredShutdowns->has($folderId)) {
                 self::$registeredShutdowns->put($folderId, true);
-                register_shutdown_function(fn() => $this->factory->removeUpload($folderId));
+                register_shutdown_function(fn() => $this->factory->removeUpload($this->serverId));
             }
         }
     }

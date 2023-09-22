@@ -13,16 +13,6 @@
           :theme="theme"
           :type="type"
           name="input"/>
-      <FillableInput
-          v-else-if="isFillable && typeof  type === 'string'"
-          v-bind="$attrs"
-          v-model="form[field]"
-          :id="finalId"
-          :field="field"
-          :form="form"
-          :maskito="maskito"
-          :theme="theme"
-          :type="type"/>
       <SelectableInput
           v-else-if="isSelectable"
           v-bind="$attrs"
@@ -36,6 +26,16 @@
           :multiple="select.multiple ?? false"
           :searchable="select.searchable ?? false"
           :theme="theme"/>
+      <FillableInput
+          v-else-if="isFillable"
+          v-bind="$attrs"
+          v-model="form[field]"
+          :id="finalId"
+          :field="field"
+          :form="form"
+          :maskito="maskito"
+          :theme="theme"
+          :type="type"/>
       <FilePondInput
           v-else-if="isFilePond"
           v-bind="$attrs"
@@ -45,8 +45,24 @@
           :params="filePond"
           :theme="theme"/>
     </div>
-    <slot v-if="feedbackSlotExists" :id="finalId" :field="field" :form="form" :showMaxLength="showMaxLength" :theme="theme" name="feedback"/>
-    <InputFeedback v-else :id="finalId" :feedback="feedback" :field="field" :form="form" :show-max-length="showMaxLength" :theme="theme"/>
+    <slot
+        v-if="feedbackSlotExists"
+        :id="finalId"
+        :field="field"
+        :form="form"
+        :hasArrayErrors="isFilePond"
+        :showMaxLength="showMaxLength"
+        :theme="theme"
+        name="feedback"/>
+    <InputFeedback
+        v-else
+        :id="finalId"
+        :feedback="feedback"
+        :field="field"
+        :form="form"
+        :has-array-errors="isFilePond"
+        :show-max-length="showMaxLength"
+        :theme="theme"/>
   </div>
 </template>
 
