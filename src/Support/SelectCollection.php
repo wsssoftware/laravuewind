@@ -80,37 +80,70 @@ class SelectCollection extends Collection
         return $collection;
     }
 
-    protected function completeSort(string $field, $options, $descending): SelectCollection {
-        return match ($options) {
-            SORT_STRING, SORT_REGULAR => $this->sortBy(function ($value1, $value2) use ($field) {
-                $a = Arr::get($value1, $field, $value1);
-                $b = Arr::get($value2, $field, $value2);
-                $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-                $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
-
-                return strcmp($at, $bt);
-            }, $options, $descending),
-            default => $this->sortBy($field, $options, $descending),
-        };
-    }
-
-    public function sortByKey($options = SORT_NUMERIC, $descending = false): SelectCollection
+    public function sortByKey(int|null $options = null, $descending = false): SelectCollection
     {
-        return $this->completeSort('key', $options, $descending);
+        return $this->sortChooser('key', $options, $descending);
     }
 
-    public function sortByKeyDesc($options = SORT_REGULAR): SelectCollection
+    public function sortByKeyDesc(int|null $options = null): SelectCollection
     {
         return $this->sortByKey($options, true);
     }
 
-    public function sortByValue($options = SORT_REGULAR, $descending = false): SelectCollection
+    public function sortByValue(int|null $options = null, $descending = false): SelectCollection
     {
-        return $this->completeSort('value', $options, $descending);
+        return $this->sortChooser('value', $options, $descending);
     }
 
-    public function sortByValueDesc($options = SORT_REGULAR): SelectCollection
+    public function sortByValueDesc(int|null $options = null): SelectCollection
     {
-        return $this->sortBy($options, true);
+        return $this->sortByValue($options, true);
+    }
+
+    protected function sortChooser(string $field, int|null $options, $descending): SelectCollection
+    {
+        $options = $this->sortTypePredictor($field, $options);
+        return match ($options) {
+            SORT_STRING, SORT_REGULAR => $this->sortUTF8($field, $descending),
+            default => $this->sortBy($field, $options, $descending),
+        };
+    }
+
+    protected function sortTypePredictor(string $field, int|null $options = null): int
+    {
+        if (is_int($options)) {
+            return $options;
+        }
+        $isNumeric = false;
+        $isString = false;
+        foreach ($this->items as $item) {
+            $value = Arr::get($item, $field, $item);
+            if (is_numeric($value)) {
+                $isNumeric = true;
+            } else {
+                $isString = true;
+            }
+        }
+        return match (true) {
+            $isNumeric && !$isString => SORT_NUMERIC,
+            $isString && !$isNumeric => SORT_STRING,
+            default => SORT_REGULAR,
+        };
+    }
+
+    protected function sortUTF8(string $field, $descending): SelectCollection
+    {
+        $collection = $this->sort(function ($value1, $value2) use ($field) {
+            $a = Arr::get($value1, $field, $value1);
+            $b = Arr::get($value2, $field, $value2);
+            $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
+            $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
+
+            return strcmp($at, $bt);
+        });
+        if ($descending) {
+            $collection = $collection->reverse();
+        }
+        return $collection;
     }
 }
