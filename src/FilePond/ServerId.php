@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Crypt;
 
 readonly class ServerId
 {
-
     public string $folderId;
 
     public int $size;
@@ -23,12 +22,12 @@ readonly class ServerId
      */
     private function __construct(
         FilePondFactory $factory,
-        ?string $folderId = null,
-        ?int $size = null,
-        ?string $encrypted = null
+        string $folderId = null,
+        int $size = null,
+        string $encrypted = null
     ) {
         $this->factory = $factory;
-        if ( ! empty($folderId) && ! empty($size)) {
+        if (! empty($folderId) && ! empty($size)) {
             $this->folderId = $folderId;
             $this->size = $size;
             $data = [
@@ -36,7 +35,7 @@ readonly class ServerId
                 'size' => $this->size,
             ];
             $this->encrypted = Crypt::encryptString(json_encode($data));
-        } elseif ( ! empty($encrypted)) {
+        } elseif (! empty($encrypted)) {
             $this->encrypted = $encrypted;
             $data = json_decode(Crypt::decryptString($encrypted), true);
             if ($data === null || empty($data['folder']) || empty($data['size'])) {
@@ -72,7 +71,8 @@ readonly class ServerId
     public function getFilePath(): string
     {
         $files = collect($this->factory->disk()->files($this->getFolderPath()))
-            ->filter(fn(string $path) => ! str_ends_with($path, FilePondUploadedFile::EXTENDED_FILENAME_POSTFIX));
+            ->filter(fn (string $path) => ! str_ends_with($path, FilePondUploadedFile::EXTENDED_FILENAME_POSTFIX));
+
         return match ($files->count()) {
             0 => throw new Exception(sprintf(
                 'The upload "%s" file does not exist or has been already removed',

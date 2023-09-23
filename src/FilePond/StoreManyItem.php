@@ -4,10 +4,9 @@ namespace Laravuewind\FilePond;
 
 abstract class StoreManyItem
 {
-
     protected readonly FilePondUploadedFile $filePondUploadFile;
 
-    private string|null $name = null;
+    private ?string $name = null;
 
     private string|array|null $options = null;
 
@@ -16,7 +15,7 @@ abstract class StoreManyItem
      */
     abstract public function handle(): string;
 
-    final public function name(): string|null
+    final public function name(): ?string
     {
         return $this->name;
     }
@@ -31,20 +30,24 @@ abstract class StoreManyItem
      */
     abstract public function path(): string;
 
-    final public function setFilePondUploadFile (FilePondUploadedFile $filePondUploadFile): self
+    final public function setFilePondUploadFile(FilePondUploadedFile $filePondUploadFile): self
     {
         $this->filePondUploadFile = $filePondUploadFile;
+
         return $this;
     }
 
     final public function withName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
+
     final public function withOptions(string|array $options): self
     {
         $this->options = $options;
+
         return $this;
     }
 }
