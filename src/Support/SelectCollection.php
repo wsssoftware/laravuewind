@@ -7,34 +7,36 @@ use Illuminate\Support\Collection;
 
 class SelectCollection extends Collection
 {
-
     protected static function getArrayType(array $items): array
     {
         $hasArrayValue = null;
         $hasArrayExtra = null;
         $differentTypes = false;
-        $failed = function () {throw new \InvalidArgumentException('Consistency problem. All items value must have same structure.');};
+        $failed = function () {
+            throw new \InvalidArgumentException('Consistency problem. All items value must have same structure.');
+        };
         foreach ($items as $value) {
-            if (($hasArrayValue === true && empty($value['value'])) || $hasArrayValue === false && !empty($value['value'])) {
+            if (($hasArrayValue === true && empty($value['value'])) || $hasArrayValue === false && ! empty($value['value'])) {
                 $failed();
             }
-            $hasArrayValue = !empty($value['value']);
+            $hasArrayValue = ! empty($value['value']);
 
-            if (($hasArrayExtra === true && !isset($value['extra'])) || $hasArrayExtra === false && isset($value['extra'])) {
+            if (($hasArrayExtra === true && ! isset($value['extra'])) || $hasArrayExtra === false && isset($value['extra'])) {
                 $failed();
             }
             $hasArrayExtra = isset($value['extra']);
 
-            if (!is_bool($value) && !is_numeric($value) && !is_string($value)) {
+            if (! is_bool($value) && ! is_numeric($value) && ! is_string($value)) {
                 $differentTypes = true;
             }
         }
-        if ($differentTypes && !$hasArrayValue && !$hasArrayExtra) {
+        if ($differentTypes && ! $hasArrayValue && ! $hasArrayExtra) {
             $failed();
         }
-        if ($hasArrayExtra && !$hasArrayValue) {
+        if ($hasArrayExtra && ! $hasArrayValue) {
             $failed();
         }
+
         return ['hasArrayValue' => $hasArrayValue, 'hasArrayExtra' => $hasArrayExtra];
     }
 
@@ -58,8 +60,8 @@ class SelectCollection extends Collection
     public static function fromPluck(
         array|Collection $items,
         string $value,
-        ?string $key = null,
-        ?string $extra = null
+        string $key = null,
+        string $extra = null
     ): SelectCollection {
         if (is_array($items)) {
             $items = collect($items);
@@ -69,6 +71,7 @@ class SelectCollection extends Collection
         } else {
             $items = $items->mapWithKeys(function ($item, $index) use ($value, $key, $extra) {
                 $key = empty($key) ? $index : (is_object($item) ? $item->{$key} : $item[$key]);
+
                 return [$key => [
                     'value' => is_object($item) ? $item->{$value} : $item[$value],
                     'extra' => is_object($item) ? $item->{$extra} : $item[$extra],
@@ -80,7 +83,8 @@ class SelectCollection extends Collection
         return $collection;
     }
 
-    protected function completeSort(string $field, $options, $descending): SelectCollection {
+    protected function completeSort(string $field, $options, $descending): SelectCollection
+    {
         return match ($options) {
             SORT_STRING, SORT_REGULAR => $this->sortBy(function ($value1, $value2) use ($field) {
                 $a = Arr::get($value1, $field, $value1);
