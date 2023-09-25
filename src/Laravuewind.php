@@ -2,7 +2,6 @@
 
 namespace Laravuewind;
 
-
 class Laravuewind
 {
     public function say(): string
