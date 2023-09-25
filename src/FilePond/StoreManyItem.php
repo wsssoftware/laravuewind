@@ -8,7 +8,7 @@ abstract class StoreManyItem
 
     private ?string $name = null;
 
-    private array|null $options = null;
+    private ?array $options = null;
 
     /**
      * handle files modifications and return it's content string
