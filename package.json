@@ -31,6 +31,10 @@
     "@maskito/kit": "^1.6.0",
     "@maskito/phone": "^1.7.0",
     "filepond": "^4.30.4",
+    "filepond-plugin-file-validate-size": "^2.2.8",
+    "filepond-plugin-file-validate-type": "^1.2.8",
+    "filepond-plugin-image-preview": "^4.6.11",
+    "filepond-plugin-image-validate-size": "^1.2.7",
     "tailwindcss": "^3.2.1"
   }
 }

@@ -11,6 +11,12 @@ import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 import {FilePondParams} from "./InputTypes";
 import * as FilePond from "filepond";
 import {FilePondFile, FilePondOptions} from "filepond";
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import FilePondPluginImageValidateSize from 'filepond-plugin-image-validate-size';
+import 'filepond/dist/filepond.min.css'
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 export default defineComponent({
   name: "FilePondInput",
@@ -28,7 +34,13 @@ export default defineComponent({
     }
   },
   mounted() {
-    FilePond.registerPlugin(...this.params?.plugins ?? [])
+    FilePond.registerPlugin(...[
+        ...this.params?.plugins ?? [],
+      FilePondPluginFileValidateSize,
+      FilePondPluginFileValidateType,
+      FilePondPluginImagePreview,
+      FilePondPluginImageValidateSize,
+    ])
     this.filePond = FilePond.create(this.$refs.input, this.getOptions());
     this.filePond.on('initfile', this.loading);
     this.filePond.on('processfilerevert', this.loading);

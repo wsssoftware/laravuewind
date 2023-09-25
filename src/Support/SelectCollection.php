@@ -2,8 +2,10 @@
 
 namespace Laravuewind\Support;
 
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Laravuewind\Http\Resources\SelectResource;
 
 class SelectCollection extends Collection
 {
@@ -133,17 +135,12 @@ class SelectCollection extends Collection
 
     protected function sortUTF8(string $field, $descending): SelectCollection
     {
-        $collection = $this->sort(function ($value1, $value2) use ($field) {
-            $a = Arr::get($value1, $field, $value1);
-            $b = Arr::get($value2, $field, $value2);
-            $at = iconv('UTF-8', 'ASCII//TRANSLIT', $a);
-            $bt = iconv('UTF-8', 'ASCII//TRANSLIT', $b);
+        setlocale(LC_ALL, config('app.locale'));
+        return $this->sortBy($field, SORT_LOCALE_STRING, $descending);
+    }
 
-            return strcmp($at, $bt);
-        });
-        if ($descending) {
-            $collection = $collection->reverse();
-        }
-        return $collection;
+    public function toResource(): AnonymousResourceCollection
+    {
+        return SelectResource::collection($this);
     }
 }
