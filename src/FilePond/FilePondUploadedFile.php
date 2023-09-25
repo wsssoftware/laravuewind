@@ -2,11 +2,10 @@
 
 namespace Laravuewind\FilePond;
 
-use const UPLOAD_ERR_OK;
-
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
@@ -30,7 +29,7 @@ class FilePondUploadedFile extends UploadedFile
         parent::__construct($path, $originalName, $mimeType, $error, $test);
     }
 
-    protected function afterStore(false|string $result): false|string
+    protected function afterStore(false|array|string $result): false|array|string
     {
         if ($result === false) {
             return false;
@@ -118,7 +117,7 @@ class FilePondUploadedFile extends UploadedFile
     /**
      * @param  \Laravuewind\FilePond\StoreManyItem[]|Collection<int, \Laravuewind\FilePond\StoreManyItem>  $items
      */
-    public function storeMany(array|Collection $items, string|array $options = []): bool
+    public function storeMany(array|Collection $items, string $name = null, string|array $options = []): array|false
     {
         if (is_array($items)) {
             $items = collect($items);
@@ -126,18 +125,32 @@ class FilePondUploadedFile extends UploadedFile
         $items->ensure(StoreManyItem::class);
         $file = $this->callBeforeStore() ?? $this;
         $itsOk = true;
+        $savedNames = collect();
         foreach ($items as $item) {
             $item->setFilePondUploadFile($file);
             $extendedFile = $this->createExtendedFilePondUploadedFile($item->handle());
+            if ($name !== null) {
+                $item->withName($name);
+            }
             $extendedOptions = $item->options() ?? $options;
-            if ($item->name() && ! $extendedFile->storeAs($item->path(), $item->name(), $extendedOptions)) {
-                $itsOk = false;
-            } elseif (! $item->name() && ! $extendedFile->store($item->path(), $extendedOptions)) {
-                $itsOk = false;
+            if ($item->name()) {
+                $savedName = $extendedFile->storeAs($item->path(), $item->name().'.'.$extendedFile->extension(), $extendedOptions);
+                if (!$name) {
+                    $itsOk = false;
+                    continue;
+                }
+                $savedNames->push($savedName);
+            } else {
+                $savedName = $extendedFile->store($item->path(), $extendedOptions);
+                if (!$name) {
+                    $itsOk = false;
+                    continue;
+                }
+                $savedNames->push($savedName);
             }
         }
 
-        return $this->afterStore($itsOk);
+        return $this->afterStore($itsOk === false ? false : $savedNames->toArray());
     }
 
     public function storePublicly($path = '', $options = []): false|string

@@ -8,7 +8,7 @@ abstract class StoreManyItem
 
     private ?string $name = null;
 
-    private string|array|null $options = null;
+    private array|null $options = null;
 
     /**
      * handle files modifications and return it's content string
@@ -44,9 +44,29 @@ abstract class StoreManyItem
         return $this;
     }
 
+    final public function withDisk(string $disk): self
+    {
+        if (empty($this->options)) {
+            $this->options = [];
+        }
+        $this->options['disk'] = $disk;
+
+        return $this;
+    }
+
     final public function withOptions(string|array $options): self
     {
-        $this->options = $options;
+        $this->options = is_array($options) ? $options : ['disk' => $options];
+
+        return $this;
+    }
+
+    final public function withPublicVisibility(): self
+    {
+        if (empty($this->options)) {
+            $this->options = [];
+        }
+        $this->options['visibility'] = 'public';
 
         return $this;
     }
