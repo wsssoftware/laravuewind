@@ -6,7 +6,6 @@ use NumberFormatter;
 
 class Number
 {
-
     public static function of(string|float|int $value): Numerable
     {
         return new Numerable($value);
@@ -15,7 +14,8 @@ class Number
     public static function parse(string|float|int $value, string $locale = null): float|int|false
     {
         $value = is_string($value) ? preg_replace('/[^0-9,.]+/', '', $value) : $value;
-        $formatter = new NumberFormatter( $locale ?? config('app.locale', 'en'), NumberFormatter::DECIMAL );
+        $formatter = new NumberFormatter($locale ?? config('app.locale', 'en'), NumberFormatter::DECIMAL);
+
         return $formatter->parse($value);
     }
 
