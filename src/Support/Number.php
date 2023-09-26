@@ -6,7 +6,6 @@ use NumberFormatter;
 
 class Number
 {
-
     public static function from(string|float|int $value): Numerable
     {
         return new Numerable($value);
@@ -15,6 +14,7 @@ class Number
     public static function format(int|float $value): string
     {
         $formatter = new NumberFormatter($locale ?? config('app.locale', 'en'), NumberFormatter::DECIMAL);
+
         return $formatter->format($value);
     }
 
@@ -22,8 +22,10 @@ class Number
     {
         if (is_string($value)) {
             $formatter = new NumberFormatter($locale ?? config('app.locale', 'en'), NumberFormatter::DECIMAL);
+
             return $formatter->parse(preg_replace('/[^0-9,.]+/', '', $value));
         }
+
         return $value;
     }
 
@@ -44,9 +46,10 @@ class Number
 
     public static function toInteger(int|float $value, int $mode = null): int
     {
-        if (is_integer($value)) {
+        if (is_int($value)) {
             return $value;
         }
+
         return intval($mode === null ? $value : round($value, mode: $mode));
     }
 }

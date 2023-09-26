@@ -26,6 +26,7 @@ class Numerable
         $numbers = array_map(function ($value) {
             return (new static($value))->toRaw();
         }, $values);
+
         return new static(Number::sum($this->value, ...$numbers));
     }
 
@@ -76,6 +77,7 @@ class Numerable
         $numbers = array_map(function ($value) {
             return (new static($value))->toRaw();
         }, $values);
+
         return new static($this->value - Number::sum(...$numbers));
     }
 
