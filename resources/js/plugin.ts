@@ -1,6 +1,6 @@
 import {App} from "vue/dist/vue";
-import {translateStrings} from "./languages";
-import languages from "./languages";
+import languages, {translateStrings} from "./languages";
+import {Numerable} from "./Support/Number";
 
 type pluginOptions = {
     lang?: string,
@@ -10,9 +10,10 @@ type pluginOptions = {
 function getLanguageStrings(options: pluginOptions): translateStrings {
     if (options?.lang) {
         if (!Object.keys(languages).includes(options.lang)) {
-            throw new Error(`Language ${options.lang} is not supported`);
+            console.warn(`Language ${options.lang} is not supported`)
+        } else {
+            return languages[options.lang];
         }
-        return languages[options.lang];
     }
 
     return languages.en;
@@ -48,7 +49,12 @@ function translate(key: string, defaultString?: string): string {
 
 export default {
     install: (app: App, options?: pluginOptions): void => {
+        const browserLanguage = navigator.language.replace('-', '_');
+        if (!options?.lang) {
+            options.lang = browserLanguage;
+        }
         localApp = app;
+        Numerable.locale = options?.lang ?? 'en';
         let languageStrings = getLanguageStrings(options);
         let userLanguageStrings = options?.translateStrings ?? {};
         languageStrings = mergeDeep(languageStrings, userLanguageStrings);

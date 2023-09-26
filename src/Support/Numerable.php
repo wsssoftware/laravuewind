@@ -22,11 +22,72 @@ class Numerable
     }
 
     /**
+     * Add the given values to the number.
+     */
+    public function add(int|float|string ...$values): static
+    {
+        $numbers = array_map(function ($value) {
+            return (new static($value))->toRaw();
+        }, $values);
+        return new static(Number::sum($this->value, ...$numbers));
+    }
+
+    public function equalsTo(string|int|float $value): bool
+    {
+        return $this->toFloat() === (new static($value))->toFloat();
+    }
+
+    public function isFloat(): bool
+    {
+        return is_float($this->value);
+    }
+
+    public function isInteger(): bool
+    {
+        return is_int($this->value);
+    }
+
+    /**
+     * Parse to a float instance.
+     */
+    public function parseToFloat(): static
+    {
+        return new static(Number::toFloat($this->value));
+    }
+
+    /**
+     * Parse to an integer instance.
+     */
+    public function parseToInteger(int $mode = null): static
+    {
+        return new static(Number::toInteger($this->value, $mode));
+    }
+
+    /**
+     * Convert the number to a percentage.
+     */
+    public function parseToPercentage(): static
+    {
+        return new static(Number::parseToPercentage($this->value));
+    }
+
+    /**
+     * Subtract the given values from the number.
+     */
+    public function sub(int|float|string ...$values): static
+    {
+        $numbers = array_map(function ($value) {
+            return (new static($value))->toRaw();
+        }, $values);
+        return new static($this->value - Number::sum(...$numbers));
+    }
+
+    /**
      * Get the number as a float.
      */
     public function toFloat(): float
     {
-        return floatval($this->value);
+        return Number::toFloat($this->value);
     }
 
     /**
@@ -34,15 +95,20 @@ class Numerable
      */
     public function toInteger(int $mode = null): int
     {
-        return $mode === null ? intval($this->value) : round($this->value, mode: $mode);
+        return Number::toInteger($this->value, $mode);
     }
 
     /**
-     * Get the number as a float percentage.
+     * Return the raw number.
      */
-    public function toPercentage(): float
+    public function toRaw(): float|int
     {
-        return $this->toFloat() / 100;
+        return $this->value;
+    }
+
+    public function __toString(): string
+    {
+        return Number::format($this->value);
     }
 
 }
