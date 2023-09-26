@@ -48,11 +48,11 @@ class SelectCollection extends Collection
         $collection = new SelectCollection();
         if ($arrayType['hasArrayValue']) {
             foreach ($items as $key => $value) {
-                $collection->push(['key' => $key, 'value' => $value['value'], 'extra' => $value['extra']]);
+                $collection->push(['key' => strval($key), 'value' => strval($value['value']), 'extra' => $value['extra']]);
             }
         } else {
             foreach ($items as $key => $value) {
-                $collection->push(['key' => $key, 'value' => $value]);
+                $collection->push(['key' => strval($key), 'value' => strval($value)]);
             }
         }
 

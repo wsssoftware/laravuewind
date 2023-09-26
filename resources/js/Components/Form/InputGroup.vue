@@ -9,7 +9,9 @@
           :field="field"
           :filePond="filePond"
           :form="form"
+          :inputmode="inputmode"
           :maskito="maskito"
+          :required="required"
           :theme="theme"
           :type="type"
           name="input"/>
@@ -33,7 +35,9 @@
           :id="finalId"
           :field="field"
           :form="form"
+          :inputmode="inputmode"
           :maskito="maskito"
+          :required="required"
           :theme="theme"
           :type="type"/>
       <FilePondInput
@@ -43,6 +47,7 @@
           :field="field"
           :form="form"
           :params="filePond"
+          :required="required"
           :theme="theme"/>
     </div>
     <slot
@@ -97,6 +102,7 @@ export default defineComponent({
     filePond: Object as PropType<FilePondParams>,
     form: {type: Object as PropType<InertiaForm<object>>, required: true},
     help: String,
+    inputmode: String as PropType<'none'|'text'|'decimal'|'numeric'|'tel'|'search'|'email'|'url'>,
     label: String,
     maskito: Object as PropType<MaskitoOptions>,
     parentAttrs: Object,
