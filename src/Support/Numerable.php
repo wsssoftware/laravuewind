@@ -4,13 +4,10 @@ namespace Laravuewind\Support;
 
 class Numerable
 {
-
     protected float|int $value;
 
     /**
      * Create a new instance of the class.
-     *
-     * @param  string|float|int  $value
      */
     public function __construct(string|float|int $value = '')
     {
@@ -110,5 +107,4 @@ class Numerable
     {
         return Number::format($this->value);
     }
-
 }
