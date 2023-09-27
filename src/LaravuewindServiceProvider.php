@@ -22,7 +22,15 @@ class LaravuewindServiceProvider extends PackageServiceProvider
             ->name('laravuewind')
             ->hasConfigFile()
             ->hasRoutes(['filepond'])
-            ->hasCommand(LaravuewindCommand::class);
+            ->hasCommand(LaravuewindCommand::class)
+            ->hasTranslations();
+
+        $langPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'lang';
+        $this->loadTranslationsFrom($langPath, 'laravue');
+
+        $this->publishes([
+            $langPath => $this->app->langPath('vendor/laravue'),
+        ], 'laravue-toolkit-lang');
     }
 
     public function boot(): self

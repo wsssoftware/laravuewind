@@ -36,10 +36,10 @@ export default function (options? : options): MaskitoOptions {
                     return [/[1-9]/, /[0-9]/, ' ', /[1-5]/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
                 }
 
-                return [/[1-9]/, /[0-9]/, ' ', /\d/];
+                return /^\d{0,11}$/;
             }
 
-            return /^\d{0,3}$/;
+            return /^\d{0,11}$/;
         },
     };
 };
