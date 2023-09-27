@@ -16,16 +16,16 @@ return [
     'document' => [
         'cnpj' => [
             'invalid' => 'The :attribute isn\'t a valid CNPJ.',
-            'size' => 'The :attribute must have 14 digits to be a valid CNPJ.'
+            'size' => 'The :attribute must have 14 digits to be a valid CNPJ.',
         ],
         'cpf' => [
             'invalid' => 'The :attribute isn\'t a valid CPF.',
-            'size' => 'The :attribute must have 11 digits to be a valid CPF.'
+            'size' => 'The :attribute must have 11 digits to be a valid CPF.',
         ],
         'generic' => [
             'invalid' => 'The :attribute isn\'t a valid CNPJ or CPF.',
-            'size' => 'The :attribute must have 11 or 14 digits to be a valid CNPJ or CPF.'
-        ]
+            'size' => 'The :attribute must have 11 or 14 digits to be a valid CNPJ or CPF.',
+        ],
     ],
 
 ];

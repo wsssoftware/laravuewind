@@ -7,12 +7,11 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 readonly class Document implements ValidationRule
 {
-
     public function __construct(
         public bool $allowCNPJ = true,
         public bool $allowCPF = true,
     ) {
-        if ( ! $this->allowCNPJ && ! $this->allowCPF) {
+        if (! $this->allowCNPJ && ! $this->allowCPF) {
             throw new \InvalidArgumentException('You must allow at least one document type.');
         }
     }
@@ -39,8 +38,9 @@ readonly class Document implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $fail(__('validation.string'));
+
             return;
         }
         $value = preg_replace('/[^0-9]/i', '', $value);
@@ -86,6 +86,7 @@ readonly class Document implements ValidationRule
         if ($value[13] != ($rest < 2 ? 0 : 11 - $rest)) {
             return false;
         }
+
         return true;
     }
 
@@ -100,6 +101,7 @@ readonly class Document implements ValidationRule
                 return false;
             }
         }
+
         return true;
     }
 }
