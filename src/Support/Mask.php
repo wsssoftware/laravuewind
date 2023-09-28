@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 class Mask
 {
     protected string $value;
+
     protected Collection $regexPattern;
 
     private function __construct(
@@ -24,6 +25,7 @@ class Mask
     protected function isRegex(string $regex): bool
     {
         $regex = str($regex);
+
         return $regex->startsWith('/') && $regex->endsWith('/') && $regex->length() > 2;
     }
 
@@ -36,6 +38,7 @@ class Mask
         if (is_array($regexPattern)) {
             $regexPattern = collect($regexPattern);
         }
+
         return (new static($regexPattern, $value))->mask();
     }
 
@@ -50,7 +53,7 @@ class Mask
                 }
                 $value = $letters->shift();
                 if (preg_match($regex, $value) === 0) {
-                   return $this->value;
+                    return $this->value;
                 } else {
                     $masked .= $value;
                 }
@@ -58,6 +61,7 @@ class Mask
                 $masked .= $regex;
             }
         }
+
         return $masked;
     }
 
@@ -65,7 +69,7 @@ class Mask
     {
         foreach ($regexPattern as $index => $item) {
             $regex = str($item);
-            if (!$this->isRegex($regex)) {
+            if (! $this->isRegex($regex)) {
                 continue;
             }
             if (@preg_match($regex->toString(), '') === false) {

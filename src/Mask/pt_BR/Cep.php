@@ -7,9 +7,8 @@ use Laravuewind\Support\MaskRecipe;
 
 class Cep extends MaskRecipe
 {
-
     public function getRegexPattern(string $value): array|Collection
     {
-        return  ['/\d/', '/\d/', '.', '/\d/', '/\d/', '/\d/', '-', '/\d/', '/\d/', '/\d/'];
+        return ['/\d/', '/\d/', '.', '/\d/', '/\d/', '/\d/', '-', '/\d/', '/\d/', '/\d/'];
     }
 }
