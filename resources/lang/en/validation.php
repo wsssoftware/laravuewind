@@ -27,5 +27,13 @@ return [
             'size' => 'The :attribute must have 11 or 14 digits to be a valid CNPJ or CPF.'
         ]
     ],
+    'phone' => [
+        'generic' => 'The :attribute isn\'t a valid phone.',
+        'cellphone' => 'The :attribute isn\'t a valid cellphone.',
+        'local_fare' => 'The :attribute isn\'t a valid local fare phone.',
+        'non_regional' => 'The :attribute isn\'t a valid non regional phone.',
+        'phone' => 'The :attribute isn\'t a valid phone.',
+        'public_services' => 'The :attribute isn\'t a valid public services phone.',
+    ],
 
 ];

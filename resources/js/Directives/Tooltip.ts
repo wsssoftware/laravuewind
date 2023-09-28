@@ -98,8 +98,9 @@ class Factory {
         let parent = el.parentElement;
         this.floating = document.createElement('div');
         this.floating.id = this.id;
+        this.floating.style.zIndex = '50';
         this.floating.style.position = 'absolute';
-        this.floating.style.width = 'max-content';
+        this.floating.style.maxWidth = '90vw';
         this.floating.style.top = '0';
         this.floating.style.left = '0';
         parent.insertBefore(this.floating, el.nextSibling);
