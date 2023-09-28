@@ -7,7 +7,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 readonly class Phone implements ValidationRule
 {
-
     public function __construct(
         public bool $allowCellphone = true,
         public bool $allowLocalFare = true,
@@ -15,7 +14,7 @@ readonly class Phone implements ValidationRule
         public bool $allowPhone = true,
         public bool $allowPublicServices = true,
     ) {
-        if ( ! $allowCellphone && ! $allowLocalFare && ! $allowNonRegional && ! $allowPhone && ! $allowPublicServices) {
+        if (! $allowCellphone && ! $allowLocalFare && ! $allowNonRegional && ! $allowPhone && ! $allowPublicServices) {
             throw new \InvalidArgumentException('At least one of the options must be true.');
         }
     }
@@ -57,8 +56,9 @@ readonly class Phone implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $fail(__('validation.string'));
+
             return;
         }
         $value = preg_replace('/[^0-9]/i', '', $value);
@@ -119,21 +119,22 @@ readonly class Phone implements ValidationRule
 
     protected function validateGeneric(string $value): string|true
     {
-        if (preg_match('/^[1-9][0-9]9$/', substr($value,  0, 3)) === 1) {
+        if (preg_match('/^[1-9][0-9]9$/', substr($value, 0, 3)) === 1) {
             return $this->validateCellphone($value);
         }
-        if (preg_match('/^400$/', substr($value,  0, 3)) === 1) {
+        if (preg_match('/^400$/', substr($value, 0, 3)) === 1) {
             return $this->validateLocalFare($value);
         }
-        if (preg_match('/^0[3589]00$/', substr($value,  0, 4)) === 1) {
+        if (preg_match('/^0[3589]00$/', substr($value, 0, 4)) === 1) {
             return $this->validateNonRegional($value);
         }
-        if (preg_match('/^[1-9][0-9][1-5][0-9]$/', substr($value,  0, 4)) === 1) {
+        if (preg_match('/^[1-9][0-9][1-5][0-9]$/', substr($value, 0, 4)) === 1) {
             return $this->validatePhone($value);
         }
-        if (preg_match('/^1[0-9]{2}$/', substr($value,  0, 3)) === 1) {
+        if (preg_match('/^1[0-9]{2}$/', substr($value, 0, 3)) === 1) {
             return $this->validatePublicServices($value);
         }
+
         return __('laravuewind::validation.phone.generic');
     }
 }
