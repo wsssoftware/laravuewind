@@ -5,7 +5,9 @@ namespace Laravuewind\Support;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 use Laravuewind\Http\Resources\SelectResource;
+use UnitEnum;
 
 class SelectCollection extends Collection
 {
@@ -57,6 +59,19 @@ class SelectCollection extends Collection
         }
 
         return $collection;
+    }
+
+    public static function fromEnum(string $enum, string $labelMethod = null): SelectCollection
+    {
+        /** @var UnitEnum|string $enum */
+        if (! enum_exists($enum)) {
+            throw new InvalidArgumentException("Enum {$enum} not found.");
+        }
+        $items = [];
+        foreach ($enum::cases() as $case) {
+            $items[$case->value] = $labelMethod ? $case->{$labelMethod}() : $case->value;
+        }
+        return self::fromArray($items);
     }
 
     public static function fromPluck(
