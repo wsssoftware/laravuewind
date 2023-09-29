@@ -45,6 +45,13 @@ export default defineComponent({
     placeholder: String,
     searchable: {type: Boolean, required: true},
     theme: {type: String, required: true},
+  },
+  beforeMount() {
+    if (Array.isArray(this.form[this.field])) {
+      this.form[this.field] = this.form[this.field].map((value) => String(value));
+    } else {
+      this.form[this.field] = String(this.form[this.field]);
+    }
   }
 });
 </script>

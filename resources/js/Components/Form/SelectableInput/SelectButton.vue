@@ -50,7 +50,7 @@ export default defineComponent({
         let result = this.choices.filter((choice: SelectChoice) => this.form[this.field].includes(choice.key));
         return result.length > 0 ? result : undefined;
       }
-      return this.choices.find((choice: SelectChoice) => choice.key === this.form[this.field]);
+      return this.choices.find((choice: SelectChoice) => choice.key == this.form[this.field]);
     },
     hasError(): boolean {
       return !!this.form.errors[this.field];
