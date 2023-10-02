@@ -27,6 +27,11 @@ abstract class SaveRecipe
 
     protected function handle(): array|false
     {
+        $toStore = $this->toStore();
+        if ($toStore instanceof StoreItem) {
+            $toStore = collect([$toStore]);
+        }
+        $this->checkIfIdIsUnique($toStore);
         $implementations = class_implements($this);
         $name = null;
         $options = [];
@@ -42,12 +47,7 @@ abstract class SaveRecipe
             /** @var \Laravuewind\FilePond\SaveRecipe|\Laravuewind\FilePond\WithOptions $this */
             $options = $this->options();
         }
-        $toStore = $this->toStore();
-        if ($toStore instanceof StoreItem) {
-            $toStore = collect([$toStore]);
-        }
-        /** @var \Illuminate\Support\Collection<int, \Laravuewind\FilePond\StoreItem> $toStore */
-        $toStore->ensure(StoreItem::class);
+
 
         $files = [];
         foreach ($toStore as $item) {
@@ -55,5 +55,22 @@ abstract class SaveRecipe
         }
 
         return $files;
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, \Laravuewind\FilePond\StoreItem>  $toStore
+     * @return void
+     */
+    protected function checkIfIdIsUnique(Collection $toStore): void
+    {
+        $toStore->ensure(StoreItem::class);
+        $usedIds = [];
+       $toStore->each(function (StoreItem $item) use (&$usedIds) {
+            if (in_array($item->id(), $usedIds)) {
+                throw new \InvalidArgumentException('The id "'.$item->id().'" is not unique.');
+            }
+            $usedIds[] = $item->id();
+        });
+
     }
 }
