@@ -3,6 +3,7 @@
 namespace Laravuewind\FilePond;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use const UPLOAD_ERR_OK;
@@ -12,6 +13,8 @@ class FilePondUploadedFile extends UploadedFile
     public const EXTENDED_FILENAME_POSTFIX = 'extended_file.tmp';
 
     protected ?BeforeStore $beforeStore = null;
+
+    protected ?FilePondUploadedFile $beforeStoreCache = null;
 
     protected static Collection $registeredShutdowns;
 
@@ -48,12 +51,14 @@ class FilePondUploadedFile extends UploadedFile
 
     protected function callBeforeStore(): ?FilePondUploadedFile
     {
-        if ($this->beforeStore) {
+        if ($this->beforeStore && $this->beforeStoreCache === null) {
             $content = $this->beforeStore
                 ->setFilePondUploadFile($this)
                 ->handle();
 
-            return $this->createExtendedFilePondUploadedFile($content);
+            return $this->beforeStoreCache = $this->createExtendedFilePondUploadedFile($content);
+        } elseif ($this->beforeStoreCache !== null) {
+            return $this->beforeStoreCache;
         }
 
         return null;
@@ -112,6 +117,36 @@ class FilePondUploadedFile extends UploadedFile
             ?->storeAs($path, $name, $options) ?? parent::storeAs($path, $name, $options);
 
         return $this->afterStore($result);
+    }
+
+    public function storeItem(StoreItem $item, ?string $name = null, array $options = []): false|array
+    {
+        $itemImplementations = class_implements($item);
+        if (isset($itemImplementations[WithCustomFilename::class])) {
+            /** @var \Laravuewind\FilePond\StoreItem|\Laravuewind\FilePond\WithCustomFilename $item */
+            $name = $item->getFilename();
+        }
+        $file = $this->callBeforeStore() ?? $this;
+        $item->setFilePondUploadFile($file);
+        $extendedFile = $this->createExtendedFilePondUploadedFile($item->handle());
+        $options = $item->options() + $options;
+        if (!empty($name)) {
+            $path = $extendedFile->storeAs(
+                $item->path(),
+                $name.'.'.$extendedFile->extension(),
+                $options
+            );
+        } else {
+            $path = $extendedFile->store($item->path(), $options);
+        }
+
+        if ($path === false) {
+            return false;
+        }
+        return [
+            'disk' => Arr::get($options, 'disk') ?? config('filesystems.default'),
+            'path' => $path,
+        ];
     }
 
     public function storePublicly($path = '', $options = []): false|string
