@@ -2,11 +2,12 @@
 
 namespace Laravuewind\FilePond;
 
+use const UPLOAD_ERR_OK;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
@@ -119,7 +120,7 @@ class FilePondUploadedFile extends UploadedFile
         return $this->afterStore($result);
     }
 
-    public function storeItem(StoreItem $item, ?string $name = null, array $options = []): false|array
+    public function storeItem(StoreItem $item, string $name = null, array $options = []): false|array
     {
         $itemImplementations = class_implements($item);
         if (isset($itemImplementations[WithCustomFilename::class])) {
@@ -130,7 +131,7 @@ class FilePondUploadedFile extends UploadedFile
         $item->setFilePondUploadFile($file);
         $extendedFile = $this->createExtendedFilePondUploadedFile($item->handle());
         $options = $item->options() + $options;
-        if (!empty($name)) {
+        if (! empty($name)) {
             $path = $extendedFile->storeAs(
                 $item->path(),
                 $name.'.'.$extendedFile->extension(),
@@ -143,6 +144,7 @@ class FilePondUploadedFile extends UploadedFile
         if ($path === false) {
             return false;
         }
+
         return [
             'disk' => Arr::get($options, 'disk') ?? config('filesystems.default'),
             'path' => $path,

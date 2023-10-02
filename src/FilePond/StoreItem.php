@@ -4,9 +4,8 @@ namespace Laravuewind\FilePond;
 
 abstract class StoreItem implements WithOptions
 {
-    use ReceiveFilePondUploadedFile;
     use HasOptions;
-
+    use ReceiveFilePondUploadedFile;
 
     /**
      * Upload id like 'default', 'large', 'thumb' or etc.

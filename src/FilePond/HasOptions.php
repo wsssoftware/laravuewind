@@ -9,6 +9,7 @@ trait HasOptions
     public function disk(string $disk): self
     {
         $this->options['disk'] = $disk;
+
         return $this;
     }
 
@@ -20,12 +21,14 @@ trait HasOptions
     public function public(): self
     {
         $this->options['visibility'] = 'public';
+
         return $this;
     }
 
     public function resetOptions(): self
     {
         $this->options = [];
+
         return $this;
     }
 
@@ -33,6 +36,7 @@ trait HasOptions
     {
         $options = is_string($options) ? ['disk' => $options] : $options;
         $this->options = $options + $this->options;
+
         return $this;
     }
 }
