@@ -2,11 +2,10 @@
 
 namespace Laravuewind\FilePond;
 
-use const UPLOAD_ERR_OK;
-
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
@@ -113,47 +112,6 @@ class FilePondUploadedFile extends UploadedFile
             ?->storeAs($path, $name, $options) ?? parent::storeAs($path, $name, $options);
 
         return $this->afterStore($result);
-    }
-
-    /**
-     * @param  \Laravuewind\FilePond\StoreManyItem[]|Collection<int, \Laravuewind\FilePond\StoreManyItem>  $items
-     */
-    public function storeMany(array|Collection $items, string $name = null, string|array $options = []): array|false
-    {
-        if (is_array($items)) {
-            $items = collect($items);
-        }
-        $items->ensure(StoreManyItem::class);
-        $file = $this->callBeforeStore() ?? $this;
-        $itsOk = true;
-        $savedNames = collect();
-        foreach ($items as $item) {
-            $item->setFilePondUploadFile($file);
-            $extendedFile = $this->createExtendedFilePondUploadedFile($item->handle());
-            if ($name !== null) {
-                $item->withName($name);
-            }
-            $extendedOptions = $item->options() ?? $options;
-            if ($item->name()) {
-                $savedName = $extendedFile->storeAs($item->path(), $item->name().'.'.$extendedFile->extension(), $extendedOptions);
-                if (! $name) {
-                    $itsOk = false;
-
-                    continue;
-                }
-                $savedNames->push($savedName);
-            } else {
-                $savedName = $extendedFile->store($item->path(), $extendedOptions);
-                if (! $name) {
-                    $itsOk = false;
-
-                    continue;
-                }
-                $savedNames->push($savedName);
-            }
-        }
-
-        return $this->afterStore($itsOk === false ? false : $savedNames->toArray());
     }
 
     public function storePublicly($path = '', $options = []): false|string

@@ -4,14 +4,7 @@ namespace Laravuewind\FilePond;
 
 abstract class BeforeStore
 {
-    protected readonly FilePondUploadedFile $filePondUploadFile;
-
-    final public function setFilePondUploadFile(FilePondUploadedFile $filePondUploadFile): self
-    {
-        $this->filePondUploadFile = $filePondUploadFile;
-
-        return $this;
-    }
+    use ReceiveFilePondUploadedFile;
 
     /**
      * handle files modifications and return it's content string
