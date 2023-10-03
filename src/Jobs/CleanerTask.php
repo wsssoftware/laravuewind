@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
  */
 readonly class CleanerTask
 {
-
     public string $path;
 
     public false|Carbon $trashBinTtl;
@@ -27,7 +26,7 @@ readonly class CleanerTask
         false|int|Carbon|null $trashBinTtl,
     ) {
         $this->path = self::pathSanitize($path);
-        if (!is_array(config("filesystems.disks.$disk"))) {
+        if (! is_array(config("filesystems.disks.$disk"))) {
             throw new \InvalidArgumentException(sprintf(
                 'Disk %s is not exists in filesystems config',
                 $disk
@@ -49,7 +48,6 @@ readonly class CleanerTask
             $this->trashBinTtl = $trashBinTtl;
         }
     }
-
 
     public static function pathSanitize(string $path): string
     {

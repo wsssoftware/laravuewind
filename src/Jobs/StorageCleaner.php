@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class StorageCleaner implements ShouldQueue, ShouldBeUnique
+class StorageCleaner implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -46,17 +46,13 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * @param  string  $disk
-     * @param  string  $path
      * @param  \Laravuewind\Jobs\ModelFiles|\Laravuewind\Jobs\ModelFiles[]  $modelCleaner
-     * @param  bool  $recursive
-     * @return void
      */
     public static function registerTask(
         string $disk,
         string $path,
         ModelFiles|array $modelCleaner,
-        false|int|Carbon|null $trashBinTtl = null,
+        false|int|Carbon $trashBinTtl = null,
         bool $recursive = true
     ): void {
         $cleanerTask = new CleanerTask(
@@ -80,6 +76,7 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
             if ($task->path === $cleanerTask->path) {
                 return true;
             }
+
             return false;
         });
         if ($duplicatedItems->isNotEmpty()) {
