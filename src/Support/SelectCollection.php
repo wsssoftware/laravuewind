@@ -71,6 +71,7 @@ class SelectCollection extends Collection
         foreach ($enum::cases() as $case) {
             $items[$case->value] = $labelMethod ? $case->{$labelMethod}() : $case->value;
         }
+
         return self::fromArray($items);
     }
 

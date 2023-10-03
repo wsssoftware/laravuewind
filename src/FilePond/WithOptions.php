@@ -4,7 +4,6 @@ namespace Laravuewind\FilePond;
 
 interface WithOptions
 {
-
     public function disk(string $disk): self;
 
     public function options(): array;

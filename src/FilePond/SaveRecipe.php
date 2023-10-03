@@ -6,7 +6,6 @@ use Illuminate\Support\Collection;
 
 abstract class SaveRecipe
 {
-
     private function __construct(
         protected FilePondUploadedFile $filePondUploadedFile
     ) {
@@ -48,7 +47,6 @@ abstract class SaveRecipe
             $options = $this->options();
         }
 
-
         $files = [];
         foreach ($toStore as $item) {
             $files[$item->id()] = $this->filePondUploadedFile->storeItem($item, $name, $options);
@@ -59,13 +57,12 @@ abstract class SaveRecipe
 
     /**
      * @param  \Illuminate\Support\Collection<int, \Laravuewind\FilePond\StoreItem>  $toStore
-     * @return void
      */
     protected function checkIfIdIsUnique(Collection $toStore): void
     {
         $toStore->ensure(StoreItem::class);
         $usedIds = [];
-       $toStore->each(function (StoreItem $item) use (&$usedIds) {
+        $toStore->each(function (StoreItem $item) use (&$usedIds) {
             if (in_array($item->id(), $usedIds)) {
                 throw new \InvalidArgumentException('The id "'.$item->id().'" is not unique.');
             }
