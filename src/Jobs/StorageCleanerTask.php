@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class StorageCleanerTask implements ShouldQueue, ShouldBeUnique
+class StorageCleanerTask implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -23,7 +23,8 @@ class StorageCleanerTask implements ShouldQueue, ShouldBeUnique
 
     private string $trashBinPath;
 
-    public function __construct(protected CleanerTask $cleanerTask) {
+    public function __construct(protected CleanerTask $cleanerTask)
+    {
         $this->trashBinPath = CleanerTask::pathSanitize(config('laravuewind.storage_cleaner.trash_bin_path'));
     }
 
@@ -61,7 +62,7 @@ class StorageCleanerTask implements ShouldQueue, ShouldBeUnique
                         $moveTimestamp,
                         $this->formatTimestamp($this->cleanerTask->trashBinTtl->getTimestamp()),
                     );
-                    $newPath = $this->trashBinPath.'/'.$path . $trashedPostfix;
+                    $newPath = $this->trashBinPath.'/'.$path.$trashedPostfix;
                     if ($disk->move($path, $newPath)) {
                         $success->push($path);
                     } else {

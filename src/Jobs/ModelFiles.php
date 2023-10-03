@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Schema;
 
 readonly class ModelFiles
 {
-
     public Collection $columns;
 
     public Model $model;
@@ -18,9 +17,8 @@ readonly class ModelFiles
     public function __construct(
         string $model,
         string|array $columns,
-    )
-    {
-        if (!class_exists($model) || !is_subclass_of($model, Model::class)) {
+    ) {
+        if (! class_exists($model) || ! is_subclass_of($model, Model::class)) {
             throw new \InvalidArgumentException(sprintf(
                 'Model %s is not exists or not instance of %s',
                 $model,
@@ -42,7 +40,7 @@ readonly class ModelFiles
         );
 
         $this->columns->each(function (string $column) use ($dtColumns): void {
-            if (!in_array($column, $dtColumns)) {
+            if (! in_array($column, $dtColumns)) {
                 throw new \InvalidArgumentException(sprintf(
                     'Column "%s" is not exists in table "%s"',
                     $column,
@@ -67,7 +65,7 @@ readonly class ModelFiles
             $query = $query->withTrashed();
         }
 
-        $query->chunk(500, function (Collection $models) use ($path, &$files) {
+        $query->chunk(500, function (Collection $models) use (&$files) {
             foreach ($models as $model) {
                 foreach ($this->columns as $column) {
                     $columnFiles = $model->{$column};
@@ -85,10 +83,11 @@ readonly class ModelFiles
             }
         });
         foreach ($files as $index => $file) {
-            if (!str_starts_with($file, $path.'/') && $file !== $path) {
+            if (! str_starts_with($file, $path.'/') && $file !== $path) {
                 unset($files[$index]);
             }
         }
+
         return $files;
     }
 }

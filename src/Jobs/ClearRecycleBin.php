@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class ClearRecycleBin implements ShouldQueue, ShouldBeUnique
+class ClearRecycleBin implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -42,7 +42,7 @@ class ClearRecycleBin implements ShouldQueue, ShouldBeUnique
     protected function handleDisk(string $diskName): void
     {
         $disk = Storage::disk($diskName);
-        if (!$disk->exists($this->trashBinPath)) {
+        if (! $disk->exists($this->trashBinPath)) {
             $disk->makeDirectory($this->trashBinPath);
         }
         $files = collect($disk->files($this->trashBinPath, true));
