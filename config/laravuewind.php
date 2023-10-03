@@ -34,4 +34,16 @@ return [
          */
         'temporary_path' => env('LVW_FILEPOND_TEMP_PATH', 'filepond'),
     ],
+
+    'storage_cleaner' => [
+        /**
+         * The path where to store the trashed files in disk.
+         */
+        'trash_bin_path' => env('LVW_STORAGE_CLEANER_RECYCLE_BIN_PATH', 'RECYCLE_BIN'),
+
+        /**
+         * The time to live for the trashed files in seconds. Before this time, garbage collector will delete the file.
+         */
+        'trashed_ttl' => env('LVW_STORAGE_CLEANER_TRAHSED_TTL', 60 * 60 * 24 * 15),
+    ],
 ];

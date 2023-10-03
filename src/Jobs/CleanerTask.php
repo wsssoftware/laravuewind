@@ -2,8 +2,8 @@
 
 namespace Laravuewind\Jobs;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,12 +15,16 @@ readonly class CleanerTask
 
     public string $path;
 
+    public false|Carbon $trashBinTtl;
+
+    public Collection $modelCleaner;
+
     public function __construct(
         public string $disk,
         string $path,
         public bool $recursive,
-        public string $model,
-        public array $modelColumns,
+        ModelFiles|array $modelCleaner,
+        false|int|Carbon|null $trashBinTtl,
     ) {
         $this->path = self::pathSanitize($path);
         if (!is_array(config("filesystems.disks.$disk"))) {
@@ -29,12 +33,20 @@ readonly class CleanerTask
                 $disk
             ));
         }
-        if (!class_exists($model) || !is_subclass_of($model, Model::class)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Model %s is not exists or not instance of %s',
-                $model,
-                Model::class
-            ));
+        if (is_array($modelCleaner)) {
+            $this->modelCleaner = collect($modelCleaner);
+        } else {
+            $this->modelCleaner = collect([$modelCleaner]);
+        }
+        $this->modelCleaner->ensure(ModelFiles::class);
+
+        if ($trashBinTtl === null) {
+            $trashBinTtl = intval(config('laravuewind.storage_cleaner.trashed_ttl'));
+        }
+        if (is_int($trashBinTtl)) {
+            $this->trashBinTtl = Carbon::now()->addSeconds($trashBinTtl);
+        } else {
+            $this->trashBinTtl = $trashBinTtl;
         }
     }
 
@@ -56,41 +68,7 @@ readonly class CleanerTask
         return trim($newPath, '/');
     }
 
-    public function getModelFiles(): Collection
-    {
-        $files = [];
-        $query = $this->model::query()
-            ->select($this->modelColumns)
-            ->where(function (Builder$query) {
-                foreach ($this->modelColumns as $column) {
-                    foreach ($this->modelColumns as $modelColumn) {
-                        $query->whereNotNull($column);
-                    }
-                }
-            });
-
-        //TODO add soft delete support
-
-        $query->chunk(500, function (Collection $models) use (&$files) {
-            foreach ($models as $model) {
-                foreach ($this->modelColumns as $column) {
-                    $columnFiles = $model->{$column};
-                    if (is_string($columnFiles)) {
-                        $files[] = $columnFiles;
-                    } elseif (is_array($columnFiles)) {
-                        foreach ($columnFiles as $columnFile) {
-                            if (isset($columnFile['path']) && is_string($columnFile['path'])) {
-                                $files[] = $columnFile['path'];
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        return collect($files);
-    }
-
-    public function getFiles(): Collection
+    public function getDiskFiles(): Collection
     {
         return collect(Storage::disk($this->disk)->files($this->path, $this->recursive));
     }

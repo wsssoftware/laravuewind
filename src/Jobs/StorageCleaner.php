@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +37,7 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
         foreach (self::$cleanerTasks as $cleanerTask) {
             $tasks[] = new StorageCleanerTask($cleanerTask);
         }
-        $tasks[] = new ClearRecycleBin();
+        $tasks[] = new ClearRecycleBin(static::$cleanerTasks->pluck('disk')->unique()->values());
         Bus::chain($tasks)
             ->catch(function (Throwable $e) {
                 Log::warning(sprintf('StorageCleaner job was failed with message: %s', $e->getMessage()));
@@ -44,19 +45,26 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
             ->dispatch();
     }
 
+    /**
+     * @param  string  $disk
+     * @param  string  $path
+     * @param  \Laravuewind\Jobs\ModelFiles|\Laravuewind\Jobs\ModelFiles[]  $modelCleaner
+     * @param  bool  $recursive
+     * @return void
+     */
     public static function registerTask(
         string $disk,
         string $path,
-        string $model,
-        array|string $columns,
+        ModelFiles|array $modelCleaner,
+        false|int|Carbon|null $trashBinTtl = null,
         bool $recursive = true
     ): void {
         $cleanerTask = new CleanerTask(
             $disk,
             CleanerTask::pathSanitize($path),
             $recursive,
-            $model,
-            is_string($columns) ? [$columns] : $columns
+            $modelCleaner,
+            $trashBinTtl
         );
         if (empty(static::$cleanerTasks)) {
             static::$cleanerTasks = collect();
