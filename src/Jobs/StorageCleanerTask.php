@@ -83,7 +83,8 @@ class StorageCleanerTask implements ShouldQueue, ShouldBeUnique
         if ($eligiblePaths->count() > 0) {
             $verb = $this->cleanerTask->trashBinTtl instanceof Carbon ? 'moved to trash bin' : 'deleted';
             Log::info(sprintf(
-                '%s of %s files were %s from disk "%s" in %s seconds',
+                'at path "%s" %s of %s files were %s from disk "%s" in %s seconds',
+                $this->cleanerTask->path,
                 $success->count(),
                 $eligiblePaths->count(),
                 $verb,

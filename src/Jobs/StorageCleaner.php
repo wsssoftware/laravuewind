@@ -33,6 +33,10 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
         if (empty(static::$cleanerTasks)) {
             return;
         }
+        if (! app()->isProduction()) {
+            Log::warning('Skipping cleaner due not production environment');
+            return;
+        }
         $tasks = [];
         foreach (self::$cleanerTasks as $cleanerTask) {
             $tasks[] = new StorageCleanerTask($cleanerTask);
@@ -49,6 +53,7 @@ class StorageCleaner implements ShouldQueue, ShouldBeUnique
      * @param  string  $disk
      * @param  string  $path
      * @param  \Laravuewind\Jobs\ModelFiles|\Laravuewind\Jobs\ModelFiles[]  $modelCleaner
+     * @param  false|int|\Illuminate\Support\Carbon|null  $trashBinTtl
      * @param  bool  $recursive
      * @return void
      */
