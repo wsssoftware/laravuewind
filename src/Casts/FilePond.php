@@ -4,7 +4,7 @@ namespace Laravuewind\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+use Laravuewind\Casts\FilePond\Images;
 use Laravuewind\FilePond\FilePondUploadedFile;
 use Laravuewind\FilePond\SaveRecipe;
 
@@ -28,16 +28,31 @@ class FilePond implements CastsAttributes
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): ?array
+    public function get(Model $model, string $key, mixed $value, array $attributes): null|Images
     {
         if (is_string($value)) {
             $value = json_decode($value, true);
-            foreach ($value as $key => $item) {
-                $value[$key]['url'] = Storage::disk($item['disk'])->url($item['path']);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \InvalidArgumentException('Invalid JSON format.');
             }
+            $isValid = true;
+            foreach ($value as $key => $item) {
+                if (! isset($item['disk'], $item['path'])) {
+                    $isValid = false;
+                    break;
+                }
+                if (! is_string($item['disk']) || ! is_string($item['path'])) {
+                    $isValid = false;
+                    break;
+                }
+            }
+            if ($isValid) {
+                return new Images($value);
+            }
+            throw new \InvalidArgumentException('Invalid JSON data.');
         }
 
-        return $value;
+        return null;
     }
 
     /**
