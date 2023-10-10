@@ -7,9 +7,10 @@ use Illuminate\Support\Facades\Storage;
 
 readonly class Image implements Arrayable
 {
-
     public string $disk;
+
     public string $path;
+
     public string $url;
 
     public function __construct(array $data)

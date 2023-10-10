@@ -32,6 +32,7 @@ readonly class Images implements Arrayable
         if (! isset($this->data[$name])) {
             throw new \InvalidArgumentException("\"$name\" image does not exist.");
         }
+
         return new Image($this->data[$name]);
     }
 
@@ -41,6 +42,7 @@ readonly class Images implements Arrayable
         foreach ($this->data as $key => $item) {
             $images[$key] = (new Image($item))->toArray();
         }
+
         return $images;
     }
 }
