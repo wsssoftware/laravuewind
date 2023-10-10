@@ -29,8 +29,11 @@ class Mask
         return $regex->startsWith('/') && $regex->endsWith('/') && $regex->length() > 2;
     }
 
-    public static function make(array|Collection|MaskRecipe $regexPattern, string|int|float $value): string
+    public static function make(array|Collection|MaskRecipe $regexPattern, string|int|float|null $value): ?string
     {
+        if (empty($value)) {
+            return $value;
+        }
         $value = strval($value);
         if ($regexPattern instanceof MaskRecipe) {
             $regexPattern = $regexPattern->getRegexPattern($value);

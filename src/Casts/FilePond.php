@@ -65,6 +65,9 @@ class FilePond implements CastsAttributes
         if ($value instanceof FilePondUploadedFile) {
             return json_encode($this->recipe::fromFilePondUploadFile($value));
         }
+        if ($value instanceof Images) {
+            return json_encode($value->toArray());
+        }
 
         return $value;
     }
