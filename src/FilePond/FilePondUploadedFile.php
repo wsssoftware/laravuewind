@@ -2,12 +2,11 @@
 
 namespace Laravuewind\FilePond;
 
-use const UPLOAD_ERR_OK;
-
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
@@ -82,6 +81,25 @@ class FilePondUploadedFile extends UploadedFile
             $disk->path($filepath),
             $filename,
             $disk->mimeType($filepath)
+        );
+    }
+
+    public static function fromPath(string $path): FilePondUploadedFile
+    {
+        if (is_file($path) === false) {
+            throw new \InvalidArgumentException('Path is not a file');
+        }
+        $factory = app()->make(FilePondFactory::class);
+        $folderId = $factory->createFolderId();
+        $serverId = $factory->createServerId($folderId, filesize($path));
+        $newPath = $factory->getBasePath()."/$folderId/".basename($path);
+        $factory->disk()->put($newPath, file_get_contents($path));
+        return new static(
+            $factory,
+            $serverId,
+            $factory->disk()->path($newPath),
+            basename($path),
+            $factory->disk()->mimeType($newPath)
         );
     }
 
