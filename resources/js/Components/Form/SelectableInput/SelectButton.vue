@@ -77,7 +77,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .lvw-input {
-    @apply form-input block w-full rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset sm:text-sm sm:leading-6;
+    @apply form-input block w-full rounded-md border-0 py-1.5 px-2 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6;
     @apply min-h-[2.572em] flex justify-between items-center gap-x-1 cursor-default;
     @apply disabled:bg-gray-500/20 disabled:cursor-not-allowed;
     &.lvw-open {
