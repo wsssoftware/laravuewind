@@ -2,11 +2,12 @@
 
 namespace Laravuewind\FilePond;
 
+use const UPLOAD_ERR_OK;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use const UPLOAD_ERR_OK;
 
 class FilePondUploadedFile extends UploadedFile
 {
@@ -94,6 +95,7 @@ class FilePondUploadedFile extends UploadedFile
         $serverId = $factory->createServerId($folderId, filesize($path));
         $newPath = $factory->getBasePath()."/$folderId/".basename($path);
         $factory->disk()->put($newPath, file_get_contents($path));
+
         return new static(
             $factory,
             $serverId,

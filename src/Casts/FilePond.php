@@ -28,7 +28,7 @@ class FilePond implements CastsAttributes
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): null|Images
+    public function get(Model $model, string $key, mixed $value, array $attributes): ?Images
     {
         if (is_string($value)) {
             $value = json_decode($value, true);
