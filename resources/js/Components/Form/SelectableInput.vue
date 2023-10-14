@@ -2,7 +2,7 @@
     <Listbox as="div" class="relative" :disabled="disabled" v-model="form[field]" v-slot="{open}" :multiple="multiple">
         <SelectButton
             :clearable="clearable"
-            :choices="choices"
+            :choices="finalChoices"
             :disabled="disabled"
             :field="field"
             :form="form"
@@ -12,7 +12,7 @@
             :theme="theme"/>
 
         <Options
-            :choices="choices"
+            :choices="finalChoices"
             :component="component"
             :open="open"
             :searchable="searchable"
@@ -37,7 +37,8 @@ export default defineComponent({
     },
     props: {
         clearable: {type: Boolean, required: true},
-        choices: {type: Object as PropType<SelectChoice[]>, required: true},
+        choices: Object as PropType<SelectChoice[]>,
+        choicesUrl: String,
         component: Object as PropType<Component>,
         disabled: Boolean,
         id: {type: String, required: true},
@@ -48,13 +49,33 @@ export default defineComponent({
         searchable: {type: Boolean, required: true},
         theme: {type: String, required: true},
     },
+    data() {
+        return {
+            finalChoices: [],
+        }
+    },
     beforeMount() {
         if (Array.isArray(this.form[this.field])) {
             this.form[this.field] = this.form[this.field].map((value) => String(value));
         } else {
             this.form[this.field] = String(this.form[this.field]);
         }
-    }
+        if (this.choicesUrl !== undefined) {
+            this.finalChoices = [];
+            this.fetchChoices();
+        } else if (this.choices !== undefined) {
+            this.finalChoices = this.choices;
+        }
+    },
+    methods: {
+        fetchChoices() {
+            if (this.choicesUrl) {
+                axios.get(this.choicesUrl).then((response) => {
+                    this.finalChoices = response.data;
+                });
+            }
+        }
+    },
 });
 </script>
 
