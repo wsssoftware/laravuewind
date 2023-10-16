@@ -61,6 +61,7 @@ export default {
 
         app.config.globalProperties.$lvw = {
             languageStrings: languageStrings,
+            locale: options?.lang ?? 'en',
             translate: translate,
         };
     }

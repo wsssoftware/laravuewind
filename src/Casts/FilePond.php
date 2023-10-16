@@ -62,6 +62,9 @@ class FilePond implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
+        if ($value === false) {
+            return null;
+        }
         if ($value === null && $model->getOriginal($key) instanceof Images) {
             /** @var Images $images */
             $images = $model->getOriginal($key);
