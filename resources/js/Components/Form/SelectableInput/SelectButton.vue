@@ -11,6 +11,12 @@
             :multiple="multiple"
             :theme="theme"/>
         <div class="flex justify-center items-center gap-x-1">
+            <transition
+                leave-active-class="transition duration-100 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+                <SpinnerThird class="lvw-loading animate-spin" v-if="loading"/>
+            </transition>
             <ClearButton :show="clearable && choice !== undefined" @click.prevent="clear"/>
             <AnglesUpDown class="lvw-angles-icon" aria-hidden="true"/>
         </div>
@@ -25,10 +31,12 @@ import AnglesUpDown from "../../Icons/AnglesUpDown.vue";
 import {SelectChoice} from "../InputTypes";
 import ClearButton from "./ClearButton.vue";
 import Selected from "./Selected.vue";
+import SpinnerThird from "../../Icons/SpinnerThird.vue";
 
 export default defineComponent({
     name: "SelectButton",
     components: {
+        SpinnerThird,
         Selected,
         ClearButton,
         AnglesUpDown,
@@ -40,6 +48,7 @@ export default defineComponent({
         disabled: Boolean,
         field: {type: String, required: true},
         form: {type: Object as PropType<InertiaForm<object>>, required: true},
+        loading: Boolean,
         multiple: {type: Boolean, required: true},
         open: {type: Boolean, required: true},
         placeholder: String,
@@ -88,6 +97,10 @@ export default defineComponent({
         @apply h-3 w-3;
     }
 
+    .lvw-loading {
+        @apply h-4 w-4;
+    }
+
     &.lvw-gray {
         @apply text-gray-800 ring-gray-500 focus:ring-gray-600;
         .lvw-placeholder {
@@ -95,6 +108,10 @@ export default defineComponent({
         }
 
         .lvw-angles-icon {
+            @apply fill-gray-800/75;
+        }
+
+        .lvw-loading {
             @apply fill-gray-800/75;
         }
     }
@@ -108,6 +125,10 @@ export default defineComponent({
         .lvw-angles-icon {
             @apply fill-green-800/75;
         }
+
+        .lvw-loading {
+            @apply fill-green-800/75;
+        }
     }
 
     &.lvw-indigo {
@@ -117,6 +138,10 @@ export default defineComponent({
         }
 
         .lvw-angles-icon {
+            @apply fill-indigo-800/75;
+        }
+
+        .lvw-loading {
             @apply fill-indigo-800/75;
         }
     }
@@ -130,6 +155,10 @@ export default defineComponent({
         .lvw-angles-icon {
             @apply fill-primary-800/75;
         }
+
+        .lvw-loading {
+            @apply fill-primary-800/75;
+        }
     }
 
     &.lvw-slate {
@@ -141,6 +170,10 @@ export default defineComponent({
         .lvw-angles-icon {
             @apply fill-slate-800/75;
         }
+
+        .lvw-loading {
+            @apply fill-slate-800/75;
+        }
     }
 
     &.lvw-red {
@@ -150,6 +183,10 @@ export default defineComponent({
         }
 
         .lvw-angles-icon {
+            @apply fill-red-800/75;
+        }
+
+        .lvw-loading {
             @apply fill-red-800/75;
         }
     }

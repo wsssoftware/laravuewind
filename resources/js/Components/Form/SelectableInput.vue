@@ -6,6 +6,7 @@
             :disabled="disabled"
             :field="field"
             :form="form"
+            :loading="loading"
             :multiple="multiple"
             :open="open"
             :placeholder="placeholder"
@@ -23,7 +24,6 @@
 <script lang="ts">
 import {Component, defineComponent, PropType} from "vue";
 import {InertiaForm} from "@inertiajs/vue3/types/useForm";
-import {SelectChoice} from "./InputTypes";
 import {Listbox} from '@headlessui/vue'
 import SelectButton from "./SelectableInput/SelectButton.vue";
 import Options from "./SelectableInput/Options.vue";
@@ -37,8 +37,7 @@ export default defineComponent({
     },
     props: {
         clearable: {type: Boolean, required: true},
-        choices: Object as PropType<SelectChoice[]>,
-        choicesUrl: String,
+        choices: {type: [Object, String, null], required: true},
         component: Object as PropType<Component>,
         disabled: Boolean,
         id: {type: String, required: true},
@@ -51,6 +50,7 @@ export default defineComponent({
     },
     data() {
         return {
+            loading: false,
             finalChoices: [],
         }
     },
@@ -60,22 +60,50 @@ export default defineComponent({
         } else {
             this.form[this.field] = String(this.form[this.field]);
         }
-        if (this.choicesUrl !== undefined) {
-            this.finalChoices = [];
-            this.fetchChoices();
-        } else if (this.choices !== undefined) {
-            this.finalChoices = this.choices;
-        }
+        this.fetchChoices();
     },
     methods: {
         fetchChoices() {
-            if (this.choicesUrl) {
-                axios.get(this.choicesUrl).then((response) => {
+            if (Array.isArray(this.choices)) {
+                this.finalChoices = this.choices;
+                return;
+            }
+            if (this.choices === null) {
+                this.finalChoices = [];
+                return;
+            }
+            if (typeof this.choices === 'string') {
+                this.loading = true;
+                axios.get(this.choices).then((response) => {
                     this.finalChoices = response.data;
+                    if (Array.isArray(this.form[this.field])) {
+                        this.form[this.field] = this.form[this.field].filter((value) => {
+                            return this.finalChoices.find((choice) => {
+                                return choice.key === value;
+                            });
+                        });
+                    } else if(this.form[this.field]) {
+                        let foundItems = this.finalChoices.find((choice) => {
+                            return choice.key === this.form[this.field];
+                        });
+                        if (!foundItems) {
+                            this.form[this.field] = null;
+                        }
+                    }
+                    this.loading = false;
+                }).catch((error) => {
+                    console.warn(error);
+                    this.finalChoices = [];
+                    this.loading = false;
                 });
             }
         }
     },
+    watch: {
+        choices() {
+            this.fetchChoices();
+        }
+    }
 });
 </script>
 

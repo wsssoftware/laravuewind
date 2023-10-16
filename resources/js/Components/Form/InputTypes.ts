@@ -6,8 +6,7 @@ export type SelectChoice = {key: string, value: string|number|boolean, extra?: o
 
 export type SelectOptions = {
     clearable?: boolean,
-    choices?: SelectChoice[],
-    choicesUrl?: string,
+    choices: SelectChoice[]|string|null,
     multiple?: boolean,
     optionComponent?: Component,
     searchable?: boolean,

@@ -21,7 +21,6 @@
           v-model="form[field]"
           :clearable="select.clearable ?? false"
           :choices="select.choices"
-          :choices-url="select.choicesUrl"
           :component="select.optionComponent"
           :id="finalId"
           :field="field"
@@ -145,7 +144,7 @@ export default defineComponent({
       return Fillable.includes(this.type);
     },
     isSelectable(): boolean {
-      return !!this.select
+        return this.select && (Array.isArray(this.select.choices) || typeof this.select.choices === 'string' || this.select.choices === null);
     },
     labelSlotExists(): boolean {
       return !!this.$slots.input;
