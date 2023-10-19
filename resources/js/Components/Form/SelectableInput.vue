@@ -57,7 +57,7 @@ export default defineComponent({
     beforeMount() {
         if (Array.isArray(this.form[this.field])) {
             this.form[this.field] = this.form[this.field].map((value) => String(value));
-        } else {
+        } else if (this.form[this.field]) {
             this.form[this.field] = String(this.form[this.field]);
         }
         this.fetchChoices();
