@@ -1,5 +1,5 @@
 <template>
-    <div :style="[{'aspect-ratio': dimensions ? `${dimensionsX}/${dimensionsY}` : null}]">
+    <div v-bind="parentAttrs" :style="[{'aspect-ratio': dimensions ? `${dimensionsX}/${dimensionsY}` : null}]">
         <img
             v-bind="$attrs"
             ref="img"
@@ -26,6 +26,7 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        parentAttrs: Object,
     },
     emits: ['enter', 'exit', 'applied', 'loading', 'loaded', 'error', 'finish', 'cancel'],
     data() {
@@ -60,8 +61,10 @@ export default defineComponent({
     },
     methods: {
         create() {
-            this.dimensionsX = this.dimensions[0];
-            this.dimensionsY = this.dimensions[1];
+            if (this.dimensions) {
+                this.dimensionsX = this.dimensions[0];
+                this.dimensionsY = this.dimensions[1];
+            }
             this.lazyLoad = new LazyLoad(this.options, [this.$refs.img]);
         },
         destroy() {

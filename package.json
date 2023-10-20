@@ -1,41 +1,41 @@
 {
-  "name": "laravuewind",
-  "version": "0.1.0-alpha.4",
-  "description": "A Laravel VueJs Toolkit built with TailwindCSS",
-  "main": "resources/js/index.ts",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wsssoftware/laravuewind.git"
-  },
-  "keywords": [
-    "VueJs",
-    "Laravel",
-    "TailwindCSS"
-  ],
-  "author": "Allan Carvalho",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wsssoftware/laravuewind/issues"
-  },
-  "homepage": "https://github.com/wsssoftware/laravuewind#readme",
-  "dependencies": {
-    "@floating-ui/dom": "^1.5.2",
-    "@headlessui/vue": "^1.7.16",
-    "@maskito/core": "^1.6.0",
-    "@maskito/kit": "^1.6.0",
-    "@maskito/phone": "^1.7.0",
-    "filepond": "^4.30.4",
-    "filepond-plugin-file-validate-size": "^2.2.8",
-    "filepond-plugin-file-validate-type": "^1.2.8",
-    "filepond-plugin-image-preview": "^4.6.11",
-    "filepond-plugin-image-validate-size": "^1.2.7",
-    "tailwindcss": "^3.2.1",
-      "vanilla-lazyload": "^17.8.5"
-  }
+    "name": "laravuewind",
+    "version": "0.1.0-beta.1",
+    "description": "A Laravel VueJs Toolkit built with TailwindCSS",
+    "main": "resources/js/index.ts",
+    "directories": {
+        "test": "tests"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wsssoftware/laravuewind.git"
+    },
+    "keywords": [
+        "VueJs",
+        "Laravel",
+        "TailwindCSS"
+    ],
+    "author": "Allan Carvalho",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/wsssoftware/laravuewind/issues"
+    },
+    "homepage": "https://github.com/wsssoftware/laravuewind#readme",
+    "dependencies": {
+        "@floating-ui/dom": "^1.5.2",
+        "@headlessui/vue": "^1.7.16",
+        "@maskito/core": "^1.6.0",
+        "@maskito/kit": "^1.6.0",
+        "@maskito/phone": "^1.7.0",
+        "filepond": "^4.30.4",
+        "filepond-plugin-file-validate-size": "^2.2.8",
+        "filepond-plugin-file-validate-type": "^1.2.8",
+        "filepond-plugin-image-preview": "^4.6.11",
+        "filepond-plugin-image-validate-size": "^1.2.7",
+        "tailwindcss": "^3.2.1",
+        "vanilla-lazyload": "^17.8.5"
+    }
 }
