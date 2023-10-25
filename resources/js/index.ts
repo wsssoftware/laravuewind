@@ -1,5 +1,6 @@
 import plugin from "./plugin";
 
+export {default as CheckboxGroup} from "./Components/Form/CheckboxGroup.vue";
 export {default as Datetime} from "./Components/Datetime.vue";
 export {default as FilePondInput} from "./Components/Form/FilePondInput.vue";
 export {default as FillableInput} from "./Components/Form/FillableInput.vue";

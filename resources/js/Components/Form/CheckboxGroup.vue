@@ -1,5 +1,5 @@
 <template>
-    <div class="relative flex items-start">
+    <div v-bind="parentAttrs" class="relative flex items-start">
         <div class="flex h-6 items-center">
             <input
                 :id="finalId"
@@ -50,6 +50,7 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        parentAttrs: Object,
         required: Boolean,
         theme: {
             type: String,
