@@ -3,6 +3,10 @@
 namespace Laravuewind;
 
 use Illuminate\Foundation\Application;
+use Laravuewind\Commands\Deploy\ComposerUpdateCommand;
+use Laravuewind\Commands\Deploy\GitPullCommand;
+use Laravuewind\Commands\Deploy\NpmUpdateCommand;
+use Laravuewind\Commands\Deploy\ViteBuildCommand;
 use Laravuewind\Commands\LaravuewindCommand;
 use Laravuewind\FilePond\FilePond;
 use Laravuewind\FilePond\FilePondFactory;
@@ -23,6 +27,10 @@ class LaravuewindServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasRoutes(['filepond'])
             ->hasCommand(LaravuewindCommand::class)
+            ->hasCommand(ComposerUpdateCommand::class)
+            ->hasCommand(GitPullCommand::class)
+            ->hasCommand(NpmUpdateCommand::class)
+            ->hasCommand(ViteBuildCommand::class)
             ->hasTranslations();
 
         $langPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'lang';
