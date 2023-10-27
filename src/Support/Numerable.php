@@ -12,7 +12,7 @@ class Numerable
     public function __construct(string|float|int $value = '')
     {
         $value = Number::parse($value);
-        if ($value === false) {
+        if ($value === false || $value === null) {
             throw new \InvalidArgumentException('The value must be a valid number.');
         }
         $this->value = $value;
