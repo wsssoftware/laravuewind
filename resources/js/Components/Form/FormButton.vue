@@ -1,5 +1,7 @@
 <template>
-    <button class="disabled:opacity-75" :disabled="form?.processing"></button>
+    <button class="disabled:opacity-75" :disabled="form?.processing">
+        <slot/>
+    </button>
 </template>
 
 <script lang="ts">
