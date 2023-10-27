@@ -18,7 +18,7 @@ class Number
         return $formatter->format($value);
     }
 
-    public static function parse(string|float|int $value, string $locale = null): float|int|false|null
+    public static function parse(string|float|int|null $value, string $locale = null): float|int|false|null
     {
         if (is_string($value)) {
             $formatter = new NumberFormatter($locale ?? config('app.locale', 'en'), NumberFormatter::DECIMAL);
