@@ -6,8 +6,11 @@ use NumberFormatter;
 
 class Number
 {
-    public static function from(string|float|int $value): Numerable
+    public static function from(string|float|int $value): ?Numerable
     {
+        if (self::parse($value) === null) {
+            return null;
+        }
         return new Numerable($value);
     }
 
