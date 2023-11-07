@@ -3,7 +3,6 @@
 namespace Laravuewind\Commands\Deploy;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Process\Process;
 
 /**
@@ -13,6 +12,8 @@ use Symfony\Component\Process\Process;
  */
 class ViteBuildCommand extends Command
 {
+    use HasCwdOption;
+
     /**
      * The name and signature of the console command.
      *
@@ -32,19 +33,11 @@ class ViteBuildCommand extends Command
      */
     public function handle(): int
     {
-        $cwd = $this->option('cwd') ?? dirname(__DIR__, 6);
-        $this->components->info(sprintf(
-            'Building resources on %s',
-            $cwd,
-        ));
+        $cwd = $this->getCwdOption();
+        $this->components->info(sprintf('Building resources on "%s"', $cwd));
 
-        if (! is_dir($cwd)) {
-            $this->components->error("The directory $cwd does not exist");
 
-            return SymfonyCommand::FAILURE;
-        }
-
-        $process = new Process(['npm', 'run', 'build'], $cwd);
+        $process = new Process(['npm', 'run', 'build'], $cwd, timeout: 300);
         $process->start();
         foreach ($process as $type => $data) {
             if ($process::OUT === $type) {
@@ -54,6 +47,6 @@ class ViteBuildCommand extends Command
             }
         }
 
-        return SymfonyCommand::SUCCESS;
+        return self::SUCCESS;
     }
 }

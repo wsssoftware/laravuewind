@@ -48,7 +48,7 @@ function translate(key: string, defaultString?: string): string {
 
 
 export default {
-    install: (app: App, options?: pluginOptions): void => {
+    install: (app: App, options: pluginOptions = {}): void => {
         const browserLanguage = navigator.language.replace('-', '_');
         if (!options?.lang) {
             options.lang = browserLanguage;

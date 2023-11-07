@@ -2,6 +2,7 @@
     <div v-bind="parentAttrs" class="relative flex items-start">
         <div class="flex h-6 items-center">
             <input
+                ref="input"
                 :id="finalId"
                 v-bind="$attrs"
                 :aria-describedby="feedback ? feedbackId : undefined"
@@ -35,11 +36,12 @@ import {InertiaForm} from "@inertiajs/vue3/types/useForm";
 import Asterisk from "../Icons/Asterisk.vue";
 import Tooltip from "../../Directives/Tooltip";
 import Question from "../Icons/Question.vue";
+import FillableInput from "./FillableInput.vue";
 
 export default defineComponent({
     inheritAttrs: false,
     name: "CheckboxGroup",
-    components: {Question, Asterisk},
+    components: {FillableInput, Question, Asterisk},
     props: {
         id: String,
         feedback: String,
@@ -78,6 +80,13 @@ export default defineComponent({
         if (this.form[this.field] === undefined) {
             throw new Error(`The form field "${this.field}" is missing from the component's form.`);
         }
+    },
+    methods: {
+        input() {
+            if (this.$refs.input) {
+                return this.$refs.input.$el;
+            }
+        },
     }
 });
 </script>

@@ -4,9 +4,12 @@ namespace Laravuewind\Commands\Deploy;
 
 use CzProject\GitPhp\Git;
 use Illuminate\Console\Command;
+use function Laravel\Prompts\confirm;
 
 class GitPullCommand extends Command
 {
+    use HasCwdOption;
+
     /**
      * The name and signature of the console command.
      *
@@ -29,19 +32,14 @@ class GitPullCommand extends Command
      */
     public function handle(): int
     {
-        $this->components->info('Running GIT git pull');
-        $cwd = $this->option('cwd') ?? dirname(__DIR__, 6);
-        if (! is_dir($cwd)) {
-            $this->components->error("The directory $cwd does not exist");
-
-            return self::FAILURE;
-        }
+        $cwd = $this->getCwdOption();
+        $this->components->info(sprintf('Running GIT git pull on "%s"', $cwd));
 
         $repository = (new Git())->open($cwd);
         if ($repository->hasChanges()) {
             if (
                 ! app()->isProduction() &&
-                ! $this->components->confirm('There are changes in the repository and it will be lost. Do you want to continue?', false)
+                ! confirm('There are changes in the repository and it will be lost. Do you want to continue?', false)
             ) {
                 $this->components->warn('Skipped.');
 

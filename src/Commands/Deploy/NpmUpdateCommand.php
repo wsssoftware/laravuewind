@@ -3,7 +3,6 @@
 namespace Laravuewind\Commands\Deploy;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Process\Process;
 
 /**
@@ -13,6 +12,7 @@ use Symfony\Component\Process\Process;
  */
 class NpmUpdateCommand extends Command
 {
+    use HasCwdOption;
     /**
      * The name and signature of the console command.
      *
@@ -33,14 +33,7 @@ class NpmUpdateCommand extends Command
     public function handle(): int
     {
         $this->components->info('Updating npm packages');
-
-        $cwd = $this->option('cwd') ?? dirname(__DIR__, 6);
-        if (! is_dir($cwd)) {
-            $this->components->error("The directory $cwd does not exist");
-
-            return SymfonyCommand::FAILURE;
-        }
-        $process = new Process(['npm', 'update'], $cwd);
+        $process = new Process(['npm', 'update'],  $this->getCwdOption(), timeout: 300);
         $process->start();
         foreach ($process as $type => $data) {
             if ($process::OUT === $type) {
@@ -50,6 +43,6 @@ class NpmUpdateCommand extends Command
             }
         }
 
-        return SymfonyCommand::SUCCESS;
+        return self::SUCCESS;
     }
 }
