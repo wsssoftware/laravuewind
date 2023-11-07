@@ -13,6 +13,7 @@ use Symfony\Component\Process\Process;
 class ViteBuildCommand extends Command
 {
     use HasCwdOption;
+    use FakeRun;
 
     /**
      * The name and signature of the console command.
@@ -33,6 +34,9 @@ class ViteBuildCommand extends Command
      */
     public function handle(): int
     {
+        if (self::$fake) {
+            return self::SUCCESS;
+        }
         $cwd = $this->getCwdOption();
         $this->components->info(sprintf('Building resources on "%s"', $cwd));
 

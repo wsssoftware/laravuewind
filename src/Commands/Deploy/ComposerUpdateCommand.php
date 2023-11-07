@@ -9,12 +9,17 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 class ComposerUpdateCommand extends Command
 {
+    use FakeRun;
+
     public $signature = 'composer:update';
 
     public $description = 'Update composer dependencies';
 
     public function handle(): int
     {
+        if (self::$fake) {
+            return self::SUCCESS;
+        }
         ini_set('memory_limit', '-1');
         $application = new Application();
         $application->setAutoExit(false);

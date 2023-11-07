@@ -9,6 +9,7 @@ use function Laravel\Prompts\confirm;
 class GitPullCommand extends Command
 {
     use HasCwdOption;
+    use FakeRun;
 
     /**
      * The name and signature of the console command.
@@ -32,6 +33,9 @@ class GitPullCommand extends Command
      */
     public function handle(): int
     {
+        if (self::$fake) {
+            return self::SUCCESS;
+        }
         $cwd = $this->getCwdOption();
         $this->components->info(sprintf('Running GIT git pull on "%s"', $cwd));
 

@@ -13,6 +13,7 @@ use Symfony\Component\Process\Process;
 class NpmUpdateCommand extends Command
 {
     use HasCwdOption;
+    use FakeRun;
     /**
      * The name and signature of the console command.
      *
@@ -32,6 +33,9 @@ class NpmUpdateCommand extends Command
      */
     public function handle(): int
     {
+        if (self::$fake) {
+            return self::SUCCESS;
+        }
         $this->components->info('Updating npm packages');
         $process = new Process(['npm', 'update'],  $this->getCwdOption(), timeout: 300);
         $process->start();
