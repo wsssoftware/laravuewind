@@ -104,6 +104,10 @@ export default defineComponent({
         filePond: Object as PropType<FilePondParams>,
         form: {type: Object as PropType<InertiaForm<object>>, required: true},
         help: String,
+        ignoreFieldCheck: {
+            type: Boolean,
+            default: false,
+        },
         inputmode: String as PropType<'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'>,
         label: String,
         maskito: Object as PropType<MaskitoOptions>,
@@ -153,7 +157,7 @@ export default defineComponent({
         },
     },
     beforeMount() {
-        if (this.form[this.field] === undefined) {
+        if (this.form[this.field] === undefined && this.ignoreFieldCheck === false) {
             throw new Error(`The form field "${this.field}" is missing from the component's form.`);
         }
     },

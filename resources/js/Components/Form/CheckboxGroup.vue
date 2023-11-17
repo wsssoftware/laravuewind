@@ -48,6 +48,10 @@ export default defineComponent({
         field: {type: String, required: true},
         form: {type: Object as PropType<InertiaForm<object>>, required: true},
         help: String,
+        ignoreFieldCheck: {
+            type: Boolean,
+            default: false,
+        },
         label: {
             type: String,
             required: true,
@@ -77,7 +81,7 @@ export default defineComponent({
         }
     },
     beforeMount() {
-        if (this.form[this.field] === undefined) {
+        if (this.form[this.field] === undefined && this.ignoreFieldCheck === false) {
             throw new Error(`The form field "${this.field}" is missing from the component's form.`);
         }
     },
