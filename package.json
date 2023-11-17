@@ -1,6 +1,6 @@
 {
     "name": "laravuewind",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "A Laravel VueJs Toolkit built with TailwindCSS",
     "main": "resources/js/index.ts",
     "directories": {

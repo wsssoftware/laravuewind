@@ -21,7 +21,6 @@
             <SelectableInput
                 v-else-if="isSelectable"
                 v-bind="$attrs"
-                v-model="form[field]"
                 :clearable="select.clearable ?? false"
                 :choices="select.choices"
                 :component="select.optionComponent"
@@ -35,7 +34,6 @@
                 ref="input"
                 v-else-if="isFillable"
                 v-bind="$attrs"
-                v-model="form[field]"
                 :id="finalId"
                 :field="field"
                 :form="form"

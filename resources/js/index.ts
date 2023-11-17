@@ -4,6 +4,7 @@ export {default as CheckboxGroup} from "./Components/Form/CheckboxGroup.vue";
 export {default as Datetime} from "./Components/Datetime.vue";
 export {default as FilePondInput} from "./Components/Form/FilePondInput.vue";
 export {default as FillableInput} from "./Components/Form/FillableInput.vue";
+export {default as VModelFillableInput} from "./Components/Form/VModelFillableInput.vue";
 export {default as FormButton} from "./Components/Form/FormButton.vue";
 export {default as Image} from "./Components/Image.vue";
 export {default as InputGroup} from "./Components/Form/InputGroup.vue";
