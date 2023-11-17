@@ -27,15 +27,15 @@
     "dependencies": {
         "@floating-ui/dom": "^1.5.2",
         "@headlessui/vue": "^1.7.16",
-        "@maskito/core": "^1.6.0",
-        "@maskito/kit": "^1.6.0",
-        "@maskito/phone": "^1.7.0",
+        "@maskito/core": "^1.8.2",
+        "@maskito/kit": "^1.8.2",
+        "@maskito/phone": "^1.8.2",
         "filepond": "^4.30.4",
         "filepond-plugin-file-validate-size": "^2.2.8",
         "filepond-plugin-file-validate-type": "^1.2.8",
         "filepond-plugin-image-preview": "^4.6.11",
         "filepond-plugin-image-validate-size": "^1.2.7",
-        "tailwindcss": "^3.2.1",
+        "tailwindcss": "^3.3.5",
         "vanilla-lazyload": "^17.8.5"
     }
 }

@@ -139,7 +139,7 @@ export default defineComponent({
             return !!this.$slots.feedback;
         },
         inputSlotExists(): boolean {
-            return !!this.$slots.label;
+            return !!this.$slots.input;
         },
         isFilePond(): boolean {
             return this.type === 'filepond'
@@ -151,7 +151,7 @@ export default defineComponent({
             return this.select && (Array.isArray(this.select.choices) || typeof this.select.choices === 'string' || this.select.choices === null);
         },
         labelSlotExists(): boolean {
-            return !!this.$slots.input;
+            return !!this.$slots.label;
         },
     },
     beforeMount() {
