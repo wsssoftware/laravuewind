@@ -61,14 +61,24 @@ class SelectCollection extends Collection
         return $collection;
     }
 
-    public static function fromEnum(string $enum, string $labelMethod = null): SelectCollection
+    public static function fromEnum(string $enum, string $labelMethod = null, mixed $filter = false): SelectCollection
     {
-        /** @var UnitEnum|string $enum */
+        /** @var UnitEnum|WithFilters|string $enum */
         if (! enum_exists($enum)) {
             throw new InvalidArgumentException("Enum {$enum} not found.");
         }
+        if ($filter !== false && !is_subclass_of($enum, WithFilters::class)) {
+            throw new InvalidArgumentException(sprintf(
+                'To use filters in enum "%s" you must implement "%s".',
+                $enum,
+                WithFilters::class,
+            ));
+        }
         $items = [];
-        foreach ($enum::cases() as $case) {
+        $cases = is_subclass_of($enum, WithFilters::class) && $filter !== false
+            ? $enum::filteredCases($filter)
+            : $enum::cases();
+        foreach ($cases as $case) {
             $items[$case->value] = $labelMethod ? $case->{$labelMethod}() : $case->value;
         }
 
