@@ -82,7 +82,8 @@ class GitPullCommand extends Command
     {
         spin(fn() => $repository->execute('fetch', '--tags'), 'fetching git tags');
 
-        $tags = collect($repository->getTags())
+
+        $tags = collect($repository->execute('tag', '--sort=committerdate'))
             ->mapWithKeys(fn($tag) => [$tag => $tag]);
         $tag = spin(function () use ($release, $tags) {
             return $tags
