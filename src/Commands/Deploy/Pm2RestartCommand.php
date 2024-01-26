@@ -36,6 +36,14 @@ class Pm2RestartCommand extends Command
         if (self::$fake) {
             return self::SUCCESS;
         }
+        $process = new Process(['pm2']);
+        $process->start();
+        $process->wait();
+        if ($process->getExitCode() !== 0) {
+            $this->components->info('PM2 is not installed.');
+            return self::SUCCESS;
+        }
+
         $this->components->info('Restarting PM2 processes');
         $process = new Process(['pm2', 'restart', 'all', '--update-env'],  $this->getCwdOption(), timeout: 300);
         $process->start();
