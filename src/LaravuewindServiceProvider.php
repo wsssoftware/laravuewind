@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Laravuewind\Commands\Deploy\ComposerUpdateCommand;
 use Laravuewind\Commands\Deploy\GitPullCommand;
 use Laravuewind\Commands\Deploy\NpmUpdateCommand;
+use Laravuewind\Commands\Deploy\Pm2RestartCommand;
 use Laravuewind\Commands\Deploy\ViteBuildCommand;
 use Laravuewind\Commands\LaravuewindCommand;
 use Laravuewind\FilePond\FilePond;
@@ -31,6 +32,7 @@ class LaravuewindServiceProvider extends PackageServiceProvider
             ->hasCommand(GitPullCommand::class)
             ->hasCommand(NpmUpdateCommand::class)
             ->hasCommand(ViteBuildCommand::class)
+            ->hasCommand(Pm2RestartCommand::class)
             ->hasTranslations();
 
         $langPath = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'lang';
