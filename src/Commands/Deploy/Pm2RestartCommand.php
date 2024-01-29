@@ -36,7 +36,7 @@ class Pm2RestartCommand extends Command
         if (self::$fake) {
             return self::SUCCESS;
         }
-        $process = new Process(['pm2']);
+        $process = new Process(['pm2', 'status']);
         $process->start();
         $process->wait();
         if ($process->getExitCode() !== 0) {
