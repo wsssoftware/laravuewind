@@ -2,7 +2,7 @@ import {Component} from "vue";
 import {FilePondOptions} from "filepond";
 
 
-export type SelectChoice = {key: string, value: string|number|boolean, extra?: object};
+export type SelectChoice = {key: string, value: string|number|boolean, extra?: object}|{code: string, name: string|number|boolean, extra?: object};
 
 export type SelectOptions = {
     clearable?: boolean,
