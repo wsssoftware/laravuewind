@@ -11,6 +11,16 @@ use UnitEnum;
 
 class SelectCollection extends Collection
 {
+    protected static string $keyField = 'key';
+    protected static string $valueField = 'value';
+    protected static string $extraField = 'extra';
+
+    public static function primeVueFormat(): void
+    {
+        self::$keyField = 'code';
+        self::$valueField = 'name';
+    }
+
     protected static function getArrayType(array $items): array
     {
         $hasArrayValue = null;
@@ -20,15 +30,15 @@ class SelectCollection extends Collection
             throw new \InvalidArgumentException('Consistency problem. All items value must have same structure.');
         };
         foreach ($items as $value) {
-            if (($hasArrayValue === true && empty($value['value'])) || $hasArrayValue === false && ! empty($value['value'])) {
+            if (($hasArrayValue === true && empty($value[self::$valueField])) || $hasArrayValue === false && ! empty($value[self::$valueField])) {
                 $failed();
             }
-            $hasArrayValue = ! empty($value['value']);
+            $hasArrayValue = ! empty($value[$value]);
 
-            if (($hasArrayExtra === true && ! isset($value['extra'])) || $hasArrayExtra === false && isset($value['extra'])) {
+            if (($hasArrayExtra === true && ! isset($value[self::$valueField])) || $hasArrayExtra === false && isset($value[self::$extraField])) {
                 $failed();
             }
-            $hasArrayExtra = isset($value['extra']);
+            $hasArrayExtra = isset($value[self::$extraField]);
 
             if (! is_bool($value) && ! is_numeric($value) && ! is_string($value)) {
                 $differentTypes = true;
@@ -50,11 +60,11 @@ class SelectCollection extends Collection
         $collection = new SelectCollection();
         if ($arrayType['hasArrayValue']) {
             foreach ($items as $key => $value) {
-                $collection->push(['key' => strval($key), 'value' => strval($value['value']), 'extra' => $value['extra']]);
+                $collection->push([self::$keyField => strval($key), self::$valueField => strval($value[self::$valueField]), self::$extraField => $value[self::$extraField]]);
             }
         } else {
             foreach ($items as $key => $value) {
-                $collection->push(['key' => strval($key), 'value' => strval($value)]);
+                $collection->push([self::$keyField => strval($key), self::$valueField => strval($value)]);
             }
         }
 
@@ -101,8 +111,8 @@ class SelectCollection extends Collection
                 $key = empty($key) ? $index : (is_object($item) ? $item->{$key} : $item[$key]);
 
                 return [$key => [
-                    'value' => is_object($item) ? $item->{$value} : $item[$value],
-                    'extra' => is_object($item) ? $item->{$extra} : $item[$extra],
+                    self::$keyField => is_object($item) ? $item->{$value} : $item[$value],
+                    self::$extraField => is_object($item) ? $item->{$extra} : $item[$extra],
                 ]];
             });
             $collection = self::fromArray($items->toArray());
@@ -113,22 +123,22 @@ class SelectCollection extends Collection
 
     public function sortByKey(int $options = null, $descending = false): SelectCollection
     {
-        return $this->sortChooser('key', $options, $descending);
+        return $this->sortChooser(self::$keyField, $options, $descending)->values();
     }
 
     public function sortByKeyDesc(int $options = null): SelectCollection
     {
-        return $this->sortByKey($options, true);
+        return $this->sortByKey($options, true)->values();
     }
 
     public function sortByValue(int $options = null, $descending = false): SelectCollection
     {
-        return $this->sortChooser('value', $options, $descending);
+        return $this->sortChooser(self::$valueField, $options, $descending)->values();
     }
 
     public function sortByValueDesc(int $options = null): SelectCollection
     {
-        return $this->sortByValue($options, true);
+        return $this->sortByValue($options, true)->values();
     }
 
     protected function sortChooser(string $field, ?int $options, $descending): SelectCollection
